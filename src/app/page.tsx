@@ -1,12 +1,29 @@
-"use client"; // クライアントコンポーネントとしてマーク
+'use client'; // クライアントコンポーネントとしてマーク
 
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabase/supabaseClient';
 import Link from 'next/link';
-import { Button } from '@mui/base/Button';
+import { Button, createTheme, ThemeProvider } from '@mui/material';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      light: '#757ce8',
+      main: '#3f50b5',
+      dark: '#002884',
+      contrastText: '#fff',
+    },
+    secondary: {
+      light: '#ff7961',
+      main: '#f44336',
+      dark: '#ba000d',
+      contrastText: '#000',
+    },
+  },
+});
 
 interface User {
-  id: number;  // ユーザーIDを保持するためにidを追加
+  id: number; // ユーザーIDを保持するためにidを追加
   name: string;
   age: number;
   favorite_name: string;
@@ -23,8 +40,8 @@ const Home = () => {
       const { data, error } = await supabase
         .from('users')
         .select('id, name, age, favorite_name') // idを取得するように変更
-        .eq('id', userId) 
-        .single(); 
+        .eq('id', userId)
+        .single();
 
       // エラーハンドリング
       if (error) {
@@ -41,7 +58,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div>
+    <ThemeProvider theme={theme}>
       {error && <p>{error}</p>}
       {user ? (
         <div>
@@ -51,7 +68,9 @@ const Home = () => {
 
           {/* カード編集画面への遷移 */}
           <Link href={`/edit/${user.id}`}>
-            <Button>カード編集画面へ</Button>
+            <Button variant="contained" color="secondary">
+              カード編集画面へ
+            </Button>
           </Link>
 
           {/* フレンド追加画面への遷移 */}
@@ -67,7 +86,7 @@ const Home = () => {
       ) : (
         <p>Loading...</p>
       )}
-    </div>
+    </ThemeProvider>
   );
 };
 
