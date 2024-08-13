@@ -1,9 +1,11 @@
 "use client"; // クライアントコンポーネントとしてマーク
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // useRouter をインポート
 import { supabase } from '../../../supabase/supabaseClient'; // 相対パスを修正
 
 interface Friend {
+  id: number;
   name: string;
   age: number;
   favorite_name: string;
@@ -13,11 +15,11 @@ interface Friend {
 const ViewFriends = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter(); // useRouter フックを使用
 
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        // フレンド情報の取得
         const { data: friendsData, error: friendsError } = await supabase
           .from('[1]_friends') // テーブル名を適切に設定
           .select('*'); // すべてのカラムを選択
@@ -38,6 +40,11 @@ const ViewFriends = () => {
     fetchFriends();
   }, []);
 
+  const handleViewDetails = (friendId: number) => {
+    // 詳細ページに遷移
+    router.push(`/view-friends/[id]/details/${friendId}`);
+  };
+
   return (
     <div>
       {error && <p>{error}</p>}
@@ -49,6 +56,7 @@ const ViewFriends = () => {
               <p>Name: {friend.name}</p>
               <p>Age: {friend.age}</p>
               <p>Favorite: {friend.favorite_name}</p>
+              <button onClick={() => handleViewDetails(friend.id)}>詳細を表示する</button>
             </div>
           ))
         ) : (
