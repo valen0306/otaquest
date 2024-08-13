@@ -23,14 +23,22 @@ const theme = createTheme({
 });
 
 interface User {
-  id: number; // ユーザーIDを保持するためにidを追加
+  id: number;
   name: string;
   age: number;
   favorite_name: string;
+  favorite_carrer: number;
+  address: string;
+  favorite_point: string;
+  free_comment: string;
+  x_id: string;
+  instagram_id: string;
 }
 
 const Home = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [userIconUrl, setUserIconUrl] = useState<string | null>(null);
+  const [favoriteImageUrl, setFavoriteImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -38,12 +46,14 @@ const Home = () => {
       const userId = 1; // テストデータのIDを指定
 
       const { data, error } = await supabase
-        .from('users')
-        .select('id, name, age, favorite_name') // idを取得するように変更
+        .from('all_users')
+        .select(
+          `id, name, age, favorite_name, favorite_carrer, address, 
+          favorite_point, free_comment, x_id, instagram_id`
+        )
         .eq('id', userId)
         .single();
 
-      // エラーハンドリング
       if (error) {
         setError('Error fetching user: ' + error.message);
         console.error('Error fetching user:', error);
@@ -54,7 +64,31 @@ const Home = () => {
       }
     };
 
+    const fetchUserIcon = async () => {
+      const { data } = supabase
+        .storage
+        .from('all_users')
+        .getPublicUrl('1_icon/1_icon.jpg'); // 実際のアイコン画像のファイル名に置き換え
+
+      if (data) {
+        setUserIconUrl(data.publicUrl);
+      }
+    };
+
+    const fetchFavoriteImage = async () => {
+      const { data } = supabase
+        .storage
+        .from('all_users')
+        .getPublicUrl('1_favorite/1_favorite.jpg'); // 実際の推し画像のファイル名に置き換え
+
+      if (data) {
+        setFavoriteImageUrl(data.publicUrl);
+      }
+    };
+
     fetchUser();
+    fetchUserIcon();
+    fetchFavoriteImage();
   }, []);
 
   return (
@@ -62,9 +96,17 @@ const Home = () => {
       {error && <p>{error}</p>}
       {user ? (
         <div>
+          {userIconUrl && <img src={userIconUrl} alt="ユーザアイコン" style={{ width: '100px', height: '100px' }} />}
           <p>Name: {user.name}</p>
           <p>Age: {user.age}</p>
-          <p>Favorite: {user.favorite_name}</p>
+          <p>Favorite Name: {user.favorite_name}</p>
+          <p>Favorite Career: {user.favorite_carrer}</p>
+          <p>Address: {user.address}</p>
+          <p>Favorite Point: {user.favorite_point}</p>
+          <p>Free Comment: {user.free_comment}</p>
+          <p>X ID: {user.x_id}</p>
+          <p>Instagram ID: {user.instagram_id}</p>
+          {favoriteImageUrl && <img src={favoriteImageUrl} alt="推し画像" style={{ width: '200px', height: '200px' }} />}
 
           {/* カード編集画面への遷移 */}
           <Link href={`/edit/${user.id}`}>

@@ -7,9 +7,8 @@ import { supabase } from '../../../supabase/supabaseClient'; // 相対パスを�
 interface Friend {
   id: number;
   name: string;
-  age: number;
   favorite_name: string;
-  [key: string]: any; // 任意のプロパティを許容するために any 型を使用
+  icon_url?: string; // アイコン画像のURLを追加
 }
 
 const ViewFriends = () => {
@@ -20,19 +19,45 @@ const ViewFriends = () => {
   useEffect(() => {
     const fetchFriends = async () => {
       try {
+        // [1]_friends テーブルから全てのフレンド ID を取得
         const { data: friendsData, error: friendsError } = await supabase
-          .from('[1]_friends') // テーブル名を適切に設定
-          .select('*'); // すべてのカラムを選択
+          .from('1_friends')
+          .select('id');
 
         if (friendsError) {
-          throw new Error('Error fetching friends: ' + friendsError.message);
+          throw new Error('友達の取得中にエラーが発生しました: ' + friendsError.message);
         }
-        setFriends(friendsData || []);
+
+        // 取得した ID に基づいて all_users から name, favorite_name を取得
+        if (friendsData && friendsData.length > 0) {
+          const friendsWithData = await Promise.all(
+            friendsData.map(async (friend: { id: number }) => {
+              const { data: userData, error: userError } = await supabase
+                .from('all_users')
+                .select('id, name, favorite_name') // アイコンURLの取得はここでは行わない
+                .eq('id', friend.id)
+                .single();
+
+              if (userError) {
+                throw new Error('ユーザーデータの取得中にエラーが発生しました: ' + userError.message);
+              }
+
+              // アイコン画像のURLを生成
+              const icon_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/${friend.id}_icon/${friend.id}_icon.jpg`;
+
+              return { ...userData, icon_url };
+            })
+          );
+
+          setFriends(friendsWithData || []);
+        } else {
+          setFriends([]);
+        }
       } catch (err) {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError('An unknown error occurred');
+          setError('未知のエラーが発生しました');
         }
       }
     };
@@ -54,8 +79,13 @@ const ViewFriends = () => {
           friends.map((friend, index) => (
             <div key={index} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
               <p>Name: {friend.name}</p>
-              <p>Age: {friend.age}</p>
               <p>Favorite: {friend.favorite_name}</p>
+              
+              {friend.icon_url && (
+                <div>
+                  <img src={friend.icon_url} style={{ width: '50px', height: '50px' }} />
+                </div>
+              )}
               <button onClick={() => handleViewDetails(friend.id)}>詳細を表示する</button>
             </div>
           ))
