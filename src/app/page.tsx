@@ -67,7 +67,7 @@ const Home = () => {
     const fetchUserIcon = async () => {
       const { data } = supabase
         .storage
-        .from('all_users')
+        .from('avatars')  // 修正したストレージバケット名に合わせて変更
         .getPublicUrl('1_icon/1_icon.jpg'); // 実際のアイコン画像のファイル名に置き換え
 
       if (data) {
@@ -78,7 +78,7 @@ const Home = () => {
     const fetchFavoriteImage = async () => {
       const { data } = supabase
         .storage
-        .from('all_users')
+        .from('avatars')  // 修正したストレージバケット名に合わせて変更
         .getPublicUrl('1_favorite/1_favorite.jpg'); // 実際の推し画像のファイル名に置き換え
 
       if (data) {
@@ -100,7 +100,7 @@ const Home = () => {
           <p>Name: {user.name}</p>
           <p>Age: {user.age}</p>
           <p>Favorite Name: {user.favorite_name}</p>
-          <p>Favorite Career: {user.favorite_carrer}</p>
+          <p>Favorite Carrer: {user.favorite_carrer}</p>
           <p>Address: {user.address}</p>
           <p>Favorite Point: {user.favorite_point}</p>
           <p>Free Comment: {user.free_comment}</p>
@@ -110,19 +110,30 @@ const Home = () => {
 
           {/* カード編集画面への遷移 */}
           <Link href={`/edit/${user.id}`}>
-            <Button variant="contained" color="secondary">
+            <Button variant="contained" color="secondary" style={{ marginRight: '10px' }}>
               カード編集画面へ
             </Button>
           </Link>
 
           {/* フレンド追加画面への遷移 */}
           <Link href={`/add-friend/${user.id}`}>
-            <button>フレンド追加画面へ</button>
+            <Button variant="contained" color="secondary" style={{ marginRight: '10px' }}>
+              フレンド追加画面へ
+            </Button>
           </Link>
 
           {/* フレンド一覧画面への遷移 */}
           <Link href={`/view-friends/${user.id}`}>
-            <button>フレンド一覧画面へ</button>
+            <Button variant="contained" color="secondary" style={{ marginRight: '10px' }}>
+              フレンド一覧画面へ
+            </Button>
+          </Link>
+
+          {/* サインアップ画面への遷移 */}
+          <Link href="/sign_up">
+            <Button variant="contained" color="primary">
+              サインアップ画面へ
+            </Button>
           </Link>
         </div>
       ) : (
