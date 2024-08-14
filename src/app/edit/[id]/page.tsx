@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../../supabase/supabaseClient';
 import { useParams } from 'next/navigation';
+import { ThemeProvider } from '@emotion/react';
+import { theme } from '@/app/page';
+import Header from '@/components/Header';
+import Loading from '@/components/Loading'; 
 
 interface User {
   name: string;
@@ -35,6 +39,7 @@ const EditCard = () => {
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [favoriteImageFile, setFavoriteImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const userId = Array.isArray(id) ? id[0] : id; // idがstringかstring[]かを確認し、stringに変換
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -115,6 +120,9 @@ const EditCard = () => {
 
   return (
     <div>
+<ThemeProvider theme={theme}>
+<Header name='編集' userID={userId} />
+
       {user ? (
         <>
           <h1>{user.name}さんのカード編集</h1>
@@ -175,10 +183,13 @@ const EditCard = () => {
           <button onClick={handleSave}>保存</button>
         </>
       ) : (
-        <p>Loading...</p>
+        <Loading />
       )}
+       </ThemeProvider>
     </div>
-  );
+    );
+
 };
+
 
 export default EditCard;

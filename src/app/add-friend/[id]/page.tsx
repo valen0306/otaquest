@@ -4,7 +4,13 @@ import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import QRCode from 'qrcode.react';
 import dynamic from 'next/dynamic';
-import { supabase } from '../../../supabase/supabaseClient'; // supabase クライアントをインポート
+import { supabase } from '../../../supabase/supabaseClient'; // supabase クライアントをインポート]
+import Header from '@/components/Header';
+import { ThemeProvider } from '@mui/material';
+import { theme } from '@/app/page';
+import Loading from '@/components/Loading'; 
+
+
 
 // `react-qr-scanner`を動的にインポート
 const QrScanner = dynamic(() => import('react-qr-scanner'), { ssr: false });
@@ -53,7 +59,9 @@ const AddFriend = () => {
   };
 
   return (
+    <ThemeProvider theme={theme} >
     <div>
+      <Header name='フレンド追加'userID={userId} /> 
       <h1>フレンド追加画面</h1>
       <p>以下のQRコードを読み取って、あなたのIDを共有してください。</p>
       <QRCode value={String(userId)} /> {/* IDをQRコードに変換して表示 */}
@@ -78,9 +86,14 @@ const AddFriend = () => {
         <div>
           <p>スキャンされたデータ: {scannedData}</p>
         </div>
-      )}
+
+      )} 
     </div>
+    
+    </ThemeProvider>
+    
   );
 };
+
 
 export default AddFriend;

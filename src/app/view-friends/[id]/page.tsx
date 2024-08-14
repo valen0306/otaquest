@@ -1,8 +1,11 @@
 "use client"; // クライアントコンポーネントとしてマーク
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // useRouter をインポート
+import { useParams, useRouter } from 'next/navigation'; // useRouter をインポート
 import { supabase } from '../../../supabase/supabaseClient'; // 相対パスを修正
+import { ThemeProvider } from '@mui/material';
+import { theme } from '@/app/page';
+import Header from '@/components/Header';
 
 interface Friend {
   id: number;
@@ -15,6 +18,9 @@ const ViewFriends = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter(); // useRouter フックを使用
+
+  const { id } = useParams(); // URLパラメータからIDを取得
+  const userId = Array.isArray(id) ? id[0] : id; // idがstringかstring[]かを確認し、stringに変換
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -73,6 +79,9 @@ const ViewFriends = () => {
   return (
     <div>
       {error && <p>{error}</p>}
+
+      <ThemeProvider theme={theme}>
+      <Header name='フレンド一覧' userID={userId} />
       <h1>フレンド一覧ページ</h1>
       <div>
         {friends.length > 0 ? (
@@ -93,6 +102,7 @@ const ViewFriends = () => {
           <p>フレンドがいません。</p>
         )}
       </div>
+      </ThemeProvider>
     </div>
   );
 };
