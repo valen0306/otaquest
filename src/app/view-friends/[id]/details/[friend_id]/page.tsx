@@ -6,6 +6,9 @@ import { supabase } from '../../../../../supabase/supabaseClient'; // 相対パ�
 
 interface Friend {
   id: number;
+
+
+  
   name: string;
   age: number;
   favorite_name: string;
