@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'; // useRouter をインポート
 import { supabase } from '../../../supabase/supabaseClient'; // 相対パスを修正
+import { CardComponent } from '../../../components/card_userlist'; // CardComponent をインポート
 
 interface Friend {
   id: number;
@@ -74,19 +75,16 @@ const ViewFriends = () => {
     <div>
       {error && <p>{error}</p>}
       <h1>フレンド一覧ページ</h1>
-      <div>
+      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
         {friends.length > 0 ? (
-          friends.map((friend, index) => (
-            <div key={index} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
-              <p>Name: {friend.name}</p>
-              <p>Favorite: {friend.favorite_name}</p>
-              
-              {friend.icon_url && (
-                <div>
-                  <img src={friend.icon_url} style={{ width: '50px', height: '50px' }} />
-                </div>
-              )}
-              <button onClick={() => handleViewDetails(friend.id)}>詳細を表示する</button>
+          friends.map((friend) => (
+            <div key={friend.id} style={{ margin: '20px', width: '300px' }}>
+              <CardComponent
+                title={friend.name}
+                description={friend.favorite_name}
+                image={friend.icon_url || 'デフォルトのイメージパス'} // デフォルトの画像パスを設定
+                onClick={() => handleViewDetails(friend.id)}
+              />
             </div>
           ))
         ) : (
