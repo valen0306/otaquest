@@ -74,27 +74,72 @@ const SignUp = () => {
         // }
 
         // アイコンファイルとお気に入り画像ファイルをアップロード
+        // if (iconFile) {
+        //   const { error: uploadIconError } = await supabase
+        //     .storage
+        //     .from('all_users')
+        //     .upload(`${userId}_icon/${userId}_icon.jpg`, iconFile);
+
+        //   if (uploadIconError) {
+        //     throw new Error('アイコンファイルのアップロード中にエラーが発生しました: ' + uploadIconError.message);
+        //   }
+        // }
+
+
+
+
         if (iconFile) {
-          const { error: uploadIconError } = await supabase
-            .storage
-            .from('all_users')
-            .upload(`${userId}_icon/${userId}_icon.jpg`, iconFile);
-
-          if (uploadIconError) {
-            throw new Error('アイコンファイルのアップロード中にエラーが発生しました: ' + uploadIconError.message);
+            try {
+              const { data: uploadIconData, error: uploadIconError } = await supabase.storage
+                .from('all_users') // ストレージバケット名が正しいか確認
+                .upload(`public/${userId}_icon/${userId}_icon.jpg`, iconFile, {
+                  cacheControl: '3600',
+                  upsert: false, // ファイルの上書きを避けたい場合は、falseに設定
+                });
+          
+              if (uploadIconError) {
+                throw new Error('アイコンファイルのアップロード中にエラーが発生しました: ' + uploadIconError.message);
+              } else {
+                console.log('ファイルが正常にアップロードされました:', uploadIconData);
+              }
+            } catch (err) {
+              console.error(err);
+              throw new Error('ファイルのアップロード処理中に問題が発生しました(icon)');
+            }
           }
-        }
+          
 
-        if (favoriteFile) {
-          const { error: uploadFavoriteError } = await supabase
-            .storage
-            .from('all_users')
-            .upload(`${userId}_favorite/${userId}_favorite.jpg`, favoriteFile);
 
-          if (uploadFavoriteError) {
-            throw new Error('お気に入り画像ファイルのアップロード中にエラーが発生しました: ' + uploadFavoriteError.message);
+
+          if (favoriteFile) {
+            try {
+              const { data: uploadFavoriteData, error: uploadFavoriteError } = await supabase.storage
+                .from('all_users') // ストレージバケット名が正しいか確認
+                .upload(`public/${userId}_favorite/${userId}_favorite.jpg`, favoriteFile, {
+                  cacheControl: '3600',
+                  upsert: false, // ファイルの上書きを避けたい場合は、falseに設定
+                });
+          
+              if (uploadFavoriteError) {
+                throw new Error('アイコンファイルのアップロード中にエラーが発生しました: ' + uploadFavoriteError.message);
+              } else {
+                console.log('ファイルが正常にアップロードされました:', uploadFavoriteData);
+              }
+            } catch (err) {
+              console.error(err);
+              throw new Error('ファイルのアップロード処理中に問題が発生しました(favorite)');
+            }
           }
-        }
+        // if (favoriteFile) {
+        //   const { error: uploadFavoriteError } = await supabase
+        //     .storage
+        //     .from('all_users')
+        //     .upload(`${userId}_favorite/${userId}_favorite.jpg`, favoriteFile);
+
+        //   if (uploadFavoriteError) {
+        //     throw new Error('お気に入り画像ファイルのアップロード中にエラーが発生しました: ' + uploadFavoriteError.message);
+        //   }
+        // }
 
         // アップロード完了のポップアップ表示
         alert('アップロードが完了しました');
