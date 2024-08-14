@@ -3,13 +3,15 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabase/supabaseClient';
 import Link from 'next/link';
-import { Button, createTheme, ThemeProvider } from '@mui/material';
+import { AppBar, Button, createTheme, IconButton, ThemeProvider, Toolbar, Typography } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { PRERENDER_REVALIDATE_ONLY_GENERATED_HEADER } from 'next/dist/lib/constants';
 
-const theme = createTheme({
+export const theme = createTheme({
   palette: {
     primary: {
       light: '#757ce8',
-      main: '#3f50b5',
+      main: '#C3B8F9',
       dark: '#002884',
       contrastText: '#fff',
     },
@@ -22,7 +24,7 @@ const theme = createTheme({
   },
 });
 
-interface User {
+export interface User {
   id: number;
   name: string;
   age: number;
@@ -40,6 +42,7 @@ const Home = () => {
   const [userIconUrl, setUserIconUrl] = useState<string | null>(null);
   const [favoriteImageUrl, setFavoriteImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
