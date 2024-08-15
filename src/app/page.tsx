@@ -10,7 +10,7 @@ import image from '@/assets/image.png'
 import { Public } from '@mui/icons-material';
 import { User } from '@/components/user';
 import { theme } from '@/components/theme';
-
+import Exist from '@/components/profileSheets'
 
 
 const Home = () => {
@@ -90,20 +90,11 @@ const Home = () => {
 
       <img src={"/assets/image.png"}  style={{ width: '250px' , textAlign : 'center', margin:  '0 auto', marginTop: '0px' }} />
 
+      {userId ?<Header userID={userId} name={user?.name || ''}/> : null}
       {userId ? (
         user ? (
           <div>
-            {userIconUrl && <img src={userIconUrl} alt="ユーザアイコン" style={{ width: '100px', height: '100px' }} />}
-            <p>Name: {user.name}</p>
-            <p>Age: {user.age}</p>
-            <p>Favorite Name: {user.favorite_name}</p>
-            <p>Favorite Carrer: {user.favorite_carrer}</p>
-            <p>Address: {user.address}</p>
-            <p>Favorite Point: {user.favorite_point}</p>
-            <p>Free Comment: {user.free_comment}</p>
-            <p>X ID: {user.x_id}</p>
-            <p>Instagram ID: {user.instagram_id}</p>
-            {favoriteImageUrl && <img src={favoriteImageUrl} alt="推し画像" style={{ width: '200px', height: '200px' }} />}
+            <Exist friendId={user.id} />
 
             {/* カード編集画面への遷移 */}
             <Link href={`/edit/${user.id}`}>
