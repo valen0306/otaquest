@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '../../../supabase/supabaseClient';
-import Header from '@/components/Header';
+import Header from '../../../components/Header';
 import { ThemeProvider } from '@mui/material';
-import { theme } from '@/components/theme';
+import { theme } from '../../../components/theme';
+import React from 'react';
 
 const FollowPage = () => {
   const { id } = useParams(); // URLパラメータからIDを取得
@@ -13,17 +14,33 @@ const FollowPage = () => {
   
   // idをstring型に変換
   const friend_id = Array.isArray(id) ? id[0] : id; 
-  
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [isFollowing, setIsFollowing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFollow = async () => {
+  const handleLoginAndFollow = async () => {
     try {
+      // ユーザー情報を照会
+      const { data: userData, error: userError } = await supabase
+        .from('all_users')
+        .select('id, friends_array')
+        .eq('name', username)
+        .eq('pass', password)
+        .single();
+
+      if (userError || !userData) {
+        throw new Error('ログインに失敗しました。ユーザー名またはパスワードが間違っています。');
+      }
+
+      const my_id = userData.id;
+
       // 自分のfriends_arrayを取得
       const { data: myData, error: myError } = await supabase
         .from('all_users')
         .select('friends_array')
-        .eq('id', friend_id)
+        .eq('id', my_id)
         .single();
 
       if (myError) {
@@ -49,13 +66,13 @@ const FollowPage = () => {
 
       // フレンドリストを更新
       const updatedMyFriends = [...myData.friends_array, parseInt(friend_id, 10)];
-      const updatedOtherFriends = [...otherData.friends_array, parseInt(friend_id, 10)];
+      const updatedOtherFriends = [...otherData.friends_array, parseInt(my_id, 10)];
 
       // 自分のfriends_arrayを更新
       const { error: updateMyError } = await supabase
         .from('all_users')
         .update({ friends_array: updatedMyFriends })
-        .eq('id', friend_id);
+        .eq('id', my_id);
 
       // 相手のfriends_arrayを更新
       const { error: updateOtherError } = await supabase
@@ -69,15 +86,17 @@ const FollowPage = () => {
 
       setIsFollowing(true);
       alert('フォローが完了しました！');
+      router.push(`/?id=${my_id}`); // フォロー後に自分のホームページに遷移
     } catch (err) {
-      console.error(err);
-      setError('フォロー中にエラーが発生しました。');
+      const errorMessage = (err as Error).message || '予期しないエラーが発生しました';
+      console.error(errorMessage);
+      setError(errorMessage);
     }
   };
 
   useEffect(() => {
     if (isFollowing) {
-      router.push(`/app/${friend_id}`); // フォロー後にプロフィールページに遷移
+      router.push(`/?id=${friend_id}`); // フォロー後に相手のプロフィールページに遷移
     }
   }, [isFollowing, friend_id, router]);
 
@@ -86,10 +105,32 @@ const FollowPage = () => {
       <div>
         <Header name="フォロー" userID={friend_id} />
         <h1>フォローページ</h1>
-        <p>フォローボタンを押して、相手をフォローしてください。</p>
-        <button onClick={handleFollow} disabled={isFollowing}>
-          {isFollowing ? 'フォロー済み' : 'フォローする'}
-        </button>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          handleLoginAndFollow();
+        }}>
+          <div>
+            <label>ユーザー名:</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>パスワード:</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit" disabled={isFollowing}>
+            {isFollowing ? 'フォロー済み' : 'ログインしてフォロー'}
+          </button>
+        </form>
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </div>
     </ThemeProvider>

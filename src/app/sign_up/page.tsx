@@ -16,6 +16,7 @@ interface User {
   x_id: string;
   instagram_id: string;
   pass: number; // 追加
+  friends_array: any[]; // 追加
 }
 
 const SignUp = () => {
@@ -67,6 +68,7 @@ const SignUp = () => {
           x_id: xId,
           instagram_id: instagramId,
           pass, // 追加
+          friends_array: [0], // friends_arrayの初期化を[0]に変更
         })
         .select('id')
         .single();
@@ -85,7 +87,7 @@ const SignUp = () => {
               .from('all_users') // ストレージバケット名が正しいか確認
               .upload(`/public/id_icon/${userId}_icon.jpg`, iconFile, {
                 cacheControl: '3600',
-                upsert: false,// ファイルの上書きを避けたい場合は、falseに設定
+                upsert: false, // ファイルの上書きを避けたい場合は、falseに設定
               });
 
             if (uploadIconError) {
