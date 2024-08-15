@@ -86,7 +86,7 @@ const ViewFriends = () => {
     <div>
       {error && <p>{error}</p>}
       <ThemeProvider theme={theme}>
-      <Header name = 'フレンド一覧...' userID={userId}/>
+      <Header name = 'フレンド一覧' userID={userId}/>
 
       
     
