@@ -8,7 +8,7 @@ type HeaderProps = {
 const Header = (props: HeaderProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     return (
-        <AppBar position="static" sx={{ height: 70 }}> 
+        <AppBar position="static" sx={{ height: 70 }} style={{backgroundColor:"#ffd9da"}}> 
         <Toolbar variant="dense">
           <div className='relative'>
         <IconButton

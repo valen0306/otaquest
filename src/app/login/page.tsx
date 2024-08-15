@@ -27,35 +27,39 @@ const LoginPage = () => {
     }
   };
 
+
+
   return (
-    <div>
-      <Typography variant="h4">ログイン</Typography>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <h1 style={{ fontSize: '35px', textAlign: 'center', marginTop: '60px', color: "#333132" }}>OtaQuest</h1>
+      <img src={"/assets/image.png"} style={{ width: '250px', textAlign: 'center', margin: '0 auto', marginTop: '0px' }} />
+
+
+
       {error && <Typography color="error">{error}</Typography>}
       <TextField
-        label="ユーザーネーム"
+        label="Username"
         variant="outlined"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        fullWidth
         margin="normal"
+        style={{ marginTop: '20px', width: '300px'}}
       />
       <TextField
-        label="パスワード"
+        label="Password"
         type="password" // ここでパスワード入力をマスク
         variant="outlined"
         value={pass}
         onChange={(e) => setPass(e.target.value)}
-        fullWidth
         margin="normal"
+        style={{width: '300px'}}
       />
       <Button
         variant="contained"
-        color="primary"
         onClick={handleLogin}
-        fullWidth
-        style={{ marginTop: '16px' }}
+        style={{ marginTop: '40px', width: '300px', height: '60px', backgroundColor: "#ffd9da", color: "#333132" }}
       >
-        ログイン
+        SIGN IN
       </Button>
     </div>
   );
