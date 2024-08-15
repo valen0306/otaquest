@@ -9,6 +9,7 @@ import Header from '@/components/Header';
 import { ThemeProvider } from '@mui/material';
 import { theme } from '@/components/theme'
 import Loading from '@/components/Loading';
+import { Suspense } from 'react';
 
 // `react-qr-scanner`を動的にインポート
 const QrScanner = dynamic(() => import('react-qr-scanner'), { ssr: false });
@@ -93,7 +94,7 @@ const AddFriend = () => {
 
   return (
     <ThemeProvider theme = {theme}  >
-
+    <Suspense>
 
     <div>
       <Header name = 'フレンド追加' userID={my_id} />
@@ -123,6 +124,7 @@ const AddFriend = () => {
         </div>
       )}
     </div>
+    </Suspense>
     </ThemeProvider>
     
   );
