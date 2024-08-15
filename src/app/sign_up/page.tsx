@@ -1,5 +1,4 @@
-"use client"; // クライアントコンポーネントとしてマーク
-
+'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../supabase/supabaseClient';
@@ -16,6 +15,7 @@ interface User {
   free_comment: string;
   x_id: string;
   instagram_id: string;
+  pass: number; // 追加
 }
 
 const SignUp = () => {
@@ -30,13 +30,27 @@ const SignUp = () => {
   const [instagramId, setInstagramId] = useState('');
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [favoriteFile, setFavoriteFile] = useState<File | null>(null);
+  const [pass, setPass] = useState<number | ''>('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const validatePass = (value: number | '') => {
+    if (typeof value === 'number' && value >= 1000 && value <= 9999) {
+      return true;
+    }
+    return false;
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
+
+    if (!validatePass(pass)) {
+      setError('パスワードは4桁の数値でなければなりません。');
+      setLoading(false);
+      return;
+    }
 
     try {
       // ユーザー情報を Supabase の all_users テーブルに挿入
@@ -52,6 +66,7 @@ const SignUp = () => {
           free_comment: freeComment,
           x_id: xId,
           instagram_id: instagramId,
+          pass, // 追加
         })
         .select('id')
         .single();
@@ -64,89 +79,52 @@ const SignUp = () => {
         // 登録されたユーザーの ID を取得
         const userId = userData.id;
 
-        // id_friends テーブルを作成
-        // const { error: friendsError } = await supabase
-        //   .from('all_users')
-        //   .insert({ id: userId }, { table: `${userId}_friends` });
-
-        // if (friendsError) {
-        //   throw new Error('`id_friends` テーブルへの登録中にエラーが発生しました: ' + friendsError.message);
-        // }
-
-        // アイコンファイルとお気に入り画像ファイルをアップロード
-        // if (iconFile) {
-        //   const { error: uploadIconError } = await supabase
-        //     .storage
-        //     .from('all_users')
-        //     .upload(`${userId}_icon/${userId}_icon.jpg`, iconFile);
-
-        //   if (uploadIconError) {
-        //     throw new Error('アイコンファイルのアップロード中にエラーが発生しました: ' + uploadIconError.message);
-        //   }
-        // }
-
-
-
-
         if (iconFile) {
-            try {
-              const { data: uploadIconData, error: uploadIconError } = await supabase.storage
-                .from('all_users') // ストレージバケット名が正しいか確認
-                .upload(`public/${userId}_icon/${userId}_icon.jpg`, iconFile, {
-                  cacheControl: '3600',
-                  upsert: false, // ファイルの上書きを避けたい場合は、falseに設定
-                });
-          
-              if (uploadIconError) {
-                throw new Error('アイコンファイルのアップロード中にエラーが発生しました: ' + uploadIconError.message);
-              } else {
-                console.log('ファイルが正常にアップロードされました:', uploadIconData);
-              }
-            } catch (err) {
-              console.error(err);
-              throw new Error('ファイルのアップロード処理中に問題が発生しました(icon)');
+          try {
+            const { data: uploadIconData, error: uploadIconError } = await supabase.storage
+              .from('all_users') // ストレージバケット名が正しいか確認
+              .upload(`/public/id_icon/${userId}_icon.jpg`, iconFile, {
+                cacheControl: '3600',
+                upsert: false,// ファイルの上書きを避けたい場合は、falseに設定
+              });
+
+            if (uploadIconError) {
+              throw new Error('アイコンファイルのアップロード中にエラーが発生しました(icon): ' + uploadIconError.message);
+            } else {
+              console.log('ファイルが正常にアップロードされました:', uploadIconData);
             }
+          } catch (err) {
+            console.error(err);
+            throw new Error('ファイルのアップロード処理中に問題が発生しました(icon)');
           }
-          
+        }
 
+        if (favoriteFile) {
+          try {
+            const { data: uploadFavoriteData, error: uploadFavoriteError } = await supabase.storage
+              .from('all_users') // ストレージバケット名が正しいか確認
+              .upload(`/public/id_favorite/${userId}_favorite.jpg`, favoriteFile, {
+                cacheControl: '3600',
+                upsert: false, // ファイルの上書きを避けたい場合は、falseに設定
+              });
 
-
-          if (favoriteFile) {
-            try {
-              const { data: uploadFavoriteData, error: uploadFavoriteError } = await supabase.storage
-                .from('all_users') // ストレージバケット名が正しいか確認
-                .upload(`public/${userId}_favorite/${userId}_favorite.jpg`, favoriteFile, {
-                  cacheControl: '3600',
-                  upsert: false, // ファイルの上書きを避けたい場合は、falseに設定
-                });
-          
-              if (uploadFavoriteError) {
-                throw new Error('アイコンファイルのアップロード中にエラーが発生しました: ' + uploadFavoriteError.message);
-              } else {
-                console.log('ファイルが正常にアップロードされました:', uploadFavoriteData);
-              }
-            } catch (err) {
-              console.error(err);
-              throw new Error('ファイルのアップロード処理中に問題が発生しました(favorite)');
+            if (uploadFavoriteError) {
+              throw new Error('アイコンファイルのアップロード中にエラーが発生しました(favorite): ' + uploadFavoriteError.message);
+            } else {
+              console.log('ファイルが正常にアップロードされました:', uploadFavoriteData);
             }
+          } catch (err) {
+            console.error(err);
+            throw new Error('ファイルのアップロード処理中に問題が発生しました(favorite)');
           }
-        // if (favoriteFile) {
-        //   const { error: uploadFavoriteError } = await supabase
-        //     .storage
-        //     .from('all_users')
-        //     .upload(`${userId}_favorite/${userId}_favorite.jpg`, favoriteFile);
-
-        //   if (uploadFavoriteError) {
-        //     throw new Error('お気に入り画像ファイルのアップロード中にエラーが発生しました: ' + uploadFavoriteError.message);
-        //   }
-        // }
+        }
 
         // アップロード完了のポップアップ表示
         alert('アップロードが完了しました');
 
         // ロード中フラグをオフにし、リダイレクト
         setLoading(false);
-        router.push('/app/page'); // リダイレクト先のパスに合わせて変更してください
+        router.push('../login'); // リダイレクト先のパスに合わせて変更してください
       } else {
         throw new Error('ユーザー情報の取得に失敗しました');
       }
@@ -220,6 +198,19 @@ const SignUp = () => {
           <label>
             Instagram ID:
             <input type="text" value={instagramId} onChange={(e) => setInstagramId(e.target.value)} />
+          </label>
+        </div>
+        <div>
+          <label>
+            パスワード (4桁):
+            <input
+              type="number"
+              value={pass}
+              onChange={(e) => setPass(Number(e.target.value))}
+              min="1000"
+              max="9999"
+              required
+            />
           </label>
         </div>
         <div>

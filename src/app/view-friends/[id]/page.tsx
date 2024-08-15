@@ -1,9 +1,14 @@
 "use client"; // クライアントコンポーネントとしてマーク
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '../../../supabase/supabaseClient';
 import { CardComponent } from '../../../components/card_userlist';
+import Header from '@/components/Header';
+import { ThemeProvider } from '@mui/material';
+import { theme } from '@/app/page'
+import Loading from '@/components/Loading';
+
 
 interface Friend {
   id: number;
@@ -16,6 +21,8 @@ const ViewFriends = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const {id} = useParams();
+  const userId = Array.isArray(id)?id[0]:id;
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -49,8 +56,8 @@ const ViewFriends = () => {
                 throw new Error('フレンドデータの取得中にエラーが発生しました: ' + friendError.message);
               }
 
-              const icon_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/${friendId}_icon/${friendId}_icon.jpg`;
-
+              const icon_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/id_icon/${friendId}_icon.jpg`;
+              console.log(icon_url)
               return { ...friendData, icon_url };
             })
           );
@@ -78,6 +85,9 @@ const ViewFriends = () => {
   return (
     <div>
       {error && <p>{error}</p>}
+      <ThemeProvider theme={theme}>
+      <Header name = 'フレンド一覧' userID={userId}/>
+      
       <h1>フレンド一覧ページ</h1>
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
         {friends.length > 0 ? (
@@ -95,6 +105,9 @@ const ViewFriends = () => {
           <p>フレンドがいません。</p>
         )}
       </div>
+
+      </ThemeProvider>
+      
     </div>
   );
 };

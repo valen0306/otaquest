@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../../supabase/supabaseClient';
 import { useParams } from 'next/navigation';
+import { ThemeProvider } from '@emotion/react';
+import { theme } from '@/app/page' ;
+import Header from '@/components/Header';
+import Loading from '@/components/Loading';
 
 interface User {
   name: string;
@@ -33,9 +37,9 @@ const EditCard = () => {
   const [xId, setXId] = useState('');
   const [instagramId, setInstagramId] = useState('');
   const [iconFile, setIconFile] = useState<File | null>(null);
-  const [favoriteImageFile, setFavoriteImageFile] = useState<File | null>(null);
+  const [favoriteFile, setFavoriteFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
-
+  const userId = Array.isArray(id) ? id[0]:id;
   useEffect(() => {
     const fetchUser = async () => {
       const { data, error } = await supabase
@@ -87,26 +91,42 @@ const EditCard = () => {
     }
 
     if (iconFile) {
-      const { error: iconUploadError } = await supabase
-        .storage
-        .from('all_users')
-        .upload(`1_icon/${id}_icon.jpg`, iconFile, { cacheControl: '3600', upsert: true });
-
-      if (iconUploadError) {
-        setError('Error uploading icon image: ' + iconUploadError.message);
-        console.error('Error uploading icon image:', iconUploadError);
+      try {
+        const { data: uploadIconData, error: uploadIconError } = await supabase.storage
+          .from('all_users') // ストレージバケット名が正しいか確認
+          .upload(`/public/id_icon/${id}_icon.jpg`, iconFile, {
+            cacheControl: '3600',
+            upsert: false,// ファイルの上書きを避けたい場合は、falseに設定
+          });
+    
+        if (uploadIconError) {
+          throw new Error('アイコンファイルのアップロード中にエラーが発生しました(icon): ' + uploadIconError.message);
+        } else {
+          console.log('ファイルが正常にアップロードされました:', uploadIconData);
+        }
+      } catch (err) {
+        console.error(err);
+        throw new Error('ファイルのアップロード処理中に問題が発生しました(icon)');
       }
     }
 
-    if (favoriteImageFile) {
-      const { error: favoriteImageUploadError } = await supabase
-        .storage
-        .from('all_users')
-        .upload(`1_favorite/${id}_favorite.jpg`, favoriteImageFile, { cacheControl: '3600', upsert: true });
-
-      if (favoriteImageUploadError) {
-        setError('Error uploading favorite image: ' + favoriteImageUploadError.message);
-        console.error('Error uploading favorite image:', favoriteImageUploadError);
+    if (favoriteFile) {
+      try {
+        const { data: uploadFavoriteData, error: uploadFavoriteError } = await supabase.storage
+          .from('all_users') // ストレージバケット名が正しいか確認
+          .upload(`/public/id_favorite/${id}_favorite.jpg`, favoriteFile, {
+            cacheControl: '3600',
+            upsert: false, // ファイルの上書きを避けたい場合は、falseに設定
+          });
+    
+        if (uploadFavoriteError) {
+          throw new Error('アイコンファイルのアップロード中にエラーが発生しました(favorite): ' + uploadFavoriteError.message);
+        } else {
+          console.log('ファイルが正常にアップロードされました:', uploadFavoriteData);
+        }
+      } catch (err) {
+        console.error(err);
+        throw new Error('ファイルのアップロード処理中に問題が発生しました(favorite)');
       }
     }
 
@@ -115,6 +135,11 @@ const EditCard = () => {
 
   return (
     <div>
+      <ThemeProvider theme={ theme }>
+      <Header name = '編集' userID={userId}/>
+
+
+
       {user ? (
         <>
           <h1>{user.name}さんのカード編集</h1>
@@ -169,15 +194,20 @@ const EditCard = () => {
           </div>
           <div>
             <label>お気に入り画像:</label>
-            <input type="file" onChange={(e) => e.target.files && setFavoriteImageFile(e.target.files[0])} />
+            <input type="file" onChange={(e) => e.target.files && setFavoriteFile(e.target.files[0])} />
             {user.favorite_image_url && <img src={user.favorite_image_url} alt="Favorite" width={100} />}
           </div>
           <button onClick={handleSave}>保存</button>
         </>
       ) : (
-        <p>Loading...</p>
+        <Loading/>
       )}
+
+      </ThemeProvider>
     </div>
+
+
+
   );
 };
 
