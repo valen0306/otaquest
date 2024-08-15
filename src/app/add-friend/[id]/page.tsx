@@ -1,5 +1,3 @@
-// page.tsx
-
 "use client"; // このファイル全体をクライアントコンポーネントとしてマーク
 
 import React, { useState, useEffect } from 'react';
@@ -12,9 +10,10 @@ import { ThemeProvider } from '@mui/material';
 import { theme } from '@/components/theme';
 import Loading from '@/components/Loading';
 import { Suspense } from 'react';
+import { QrCodeScanner } from '@mui/icons-material';
 
-// `react-qr-scanner` を動的にインポート
-const QrScanner = dynamic(() => import('react-qr-scanner'), { ssr: false });
+// QRCodeScannerコンポーネントを動的にインポート
+const QRCodeScanner = dynamic(() => import('@/components/QRCodeScanner'), { ssr: false });
 
 const AddFriend = () => {
   const { id } = useParams();
@@ -87,10 +86,6 @@ const AddFriend = () => {
     }
   };
 
-  const handleError = (err: any) => {
-    console.error(err);
-  };
-
   const handleCameraToggle = () => {
     setIsCameraActive(!isCameraActive);
   };
@@ -113,21 +108,12 @@ const AddFriend = () => {
               {isCameraActive ? 'カメラを停止' : 'カメラを起動'}
             </button>
             {isCameraActive && (
-              <div>
-                <select onChange={handleDeviceChange} value={videoDeviceId ?? ''}>
-                  {devices.map(device => (
-                    <option key={device.deviceId} value={device.deviceId}>
-                      {device.label || `カメラ ${device.deviceId}`}
-                    </option>
-                  ))}
-                </select>
-                <QrScanner
-                  onScan={handleScan}
-                  onError={handleError}
-                  style={{ width: '100%' }}
-                  // facingModeプロパティを削除
-                />
-              </div>
+              <QRCodeScanner
+                onScan={handleScan}
+                videoDeviceId={videoDeviceId}
+                devices={devices}
+                handleDeviceChange={handleDeviceChange}
+              />
             )}
           </div>
 
