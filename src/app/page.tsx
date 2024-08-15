@@ -6,13 +6,10 @@ import { supabase } from '../supabase/supabaseClient';
 import Link from 'next/link';
 import { ThemeProvider, createTheme, Button, Typography, Box } from '@mui/material';
 import Header from '@/components/Header';
-<<<<<<< HEAD
 import image from '@/assets/image.png'
 import { Public } from '@mui/icons-material';
-=======
 import { User } from '@/components/user';
 import { theme } from '@/components/theme';
->>>>>>> 7914bf15368a06545252bc3c1f41b85075049e91
 
 
 
