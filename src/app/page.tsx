@@ -1,44 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation'; // 修正: 'next/navigation' を使用
 import { supabase } from '../supabase/supabaseClient';
 import Link from 'next/link';
 import { ThemeProvider, createTheme, Button, Typography, Box } from '@mui/material';
 import Header from '@/components/Header';
+<<<<<<< HEAD
 import image from '@/assets/image.png'
 import { Public } from '@mui/icons-material';
+=======
+import { User } from '@/components/user';
+import { theme } from '@/components/theme';
+>>>>>>> 7914bf15368a06545252bc3c1f41b85075049e91
 
-export const theme = createTheme({
-  palette: {
-    primary: {
-      light: '#757ce8',
-      main: '#C3B8F9',
-      dark: '#002884',
-      contrastText: '#fff',
-    },
 
-    secondary: {
-      light: '#ff7961',
-      main: '#f44336',
-      dark: '#ba000d',
-      contrastText: '#000',
-    },
-  },
-});
-
-export interface User {
-  id: number;
-  name: string;
-  age: number;
-  favorite_name: string;
-  favorite_carrer: number;
-  address: string;
-  favorite_point: string;
-  free_comment: string;
-  x_id: string;
-  instagram_id: string;
-}
 
 const Home = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -110,6 +86,7 @@ const Home = () => {
 
   return (
     <ThemeProvider theme={theme}>
+    <Suspense>  
       {error && <p>{error}</p>}
       
       <h1 style={{fontSize : '35px', textAlign : 'center', marginTop : '60px', color: "#333132"}}>OtaQuest</h1>
@@ -189,6 +166,7 @@ const Home = () => {
           </Button>
         </div>
       )}
+      </Suspense>
     </ThemeProvider>
   );
 };

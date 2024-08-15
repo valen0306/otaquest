@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../../../supabase/supabaseClient';
 import { useParams } from 'next/navigation';
 import { ThemeProvider } from '@emotion/react';
-import { theme } from '@/app/page' ;
+import { theme } from '@/components/theme'
 import Header from '@/components/Header';
 import Loading from '@/components/Loading';
 
