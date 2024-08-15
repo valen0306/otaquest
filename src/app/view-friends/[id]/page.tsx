@@ -90,7 +90,26 @@ const ViewFriends = () => {
     <div>
       {error && <p>{error}</p>}
       <ThemeProvider theme={theme}>
-        <Header name="フレンド一覧" userID={userId} />
+      <Header name = 'フレンド一覧' userID={userId}/>
+
+      
+    
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center'}}>
+        {friends.length > 0 ? (
+          friends.map((friend) => (
+            <div key={friend.id} style={{ margin: '15px', width: '350px' }}>
+              <CardComponent
+                title={friend.name}
+                description={friend.favorite_name}
+                image={friend.icon_url || 'デフォルトのイメージパス'}
+                onClick={() => handleViewDetails(friend.id)}
+              />
+            </div>
+          ))
+        ) : (
+          <p>フレンドがいません。</p>
+        )}
+      </div>
 
         <h1>フレンド一覧ページ</h1>
         <div style={{ display: "flex", flexWrap: "wrap" }}>

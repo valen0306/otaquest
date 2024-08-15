@@ -8,7 +8,7 @@ type HeaderProps = {
 const Header = (props: HeaderProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     return (
-        <AppBar position="static">
+        <AppBar position="static" sx={{ height: 70 }}> 
         <Toolbar variant="dense">
           <div className='relative'>
         <IconButton
@@ -17,8 +17,9 @@ const Header = (props: HeaderProps) => {
                   color="inherit"
                   style={{color: "black"}}
                   aria-label="menu"
-                  sx={{ mr: 2 }}
+                  sx={{ mr: 2 ,marginTop: '17px' }}
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  
                 >
                   <MenuIcon />
                 </IconButton>
@@ -28,8 +29,10 @@ const Header = (props: HeaderProps) => {
                   <Link className="text-black" href={`/add-friend/${props.userID}`}>フレンド追加</Link>
                   <Link className="text-black" href={`/view-friends/${props.userID}`}>フレンド一覧</Link>
                 </div>)}
+
                 </div>
-          <Typography sx={{width: '100%'}} align='center' variant="h6" color="black" component="div">
+          <Typography sx={{width: '100%',display:"inline" ,marginTop: '17px' 
+          }} align='center' variant="h5" color="black" component="div">
             {props.name}
           </Typography>
           </Toolbar>
