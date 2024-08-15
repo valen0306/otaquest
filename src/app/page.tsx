@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation'; // 修正: 'next/navigation' を使用
 import { supabase } from '../supabase/supabaseClient';
 import Link from 'next/link';
@@ -81,6 +81,7 @@ const Home = () => {
 
   return (
     <ThemeProvider theme={theme}>
+    <Suspense>  
       {error && <p>{error}</p>}
       <Header name = 'プロフィール' userID={user?.id}/>
       {userId ? (
@@ -156,6 +157,7 @@ const Home = () => {
           </Button>
         </div>
       )}
+      </Suspense>
     </ThemeProvider>
   );
 };
