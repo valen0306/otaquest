@@ -23,7 +23,7 @@ const MainContainer = styled('div')(({ theme }) => ({
 
 interface CardComponentProps {
   title: string;
-  description: string;
+ description: string;
   image: string;
   onClick: () => void;
 }
@@ -31,27 +31,34 @@ interface CardComponentProps {
 export const CardComponent: React.FC<CardComponentProps> = ({ title, description, image, onClick }) => {
   return (
     <MainContainer>
-      <StyledCard>
+      <StyledCard sx={{borderRadius: 14}} style={{}}>
         <CardActionArea onClick={onClick}>
           <StyledCardMedia
             image={image}
             title={title}
           />
+               
           <CardContent>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <Typography gutterBottom variant="h5" component="h2">
               {title}
             </Typography>
-            <Typography variant="body2" color="textSecondary" component="p">
+            <Typography variant="body2" color="textSecondary" component="p" style={{ marginRight: 5 }}>
               {description}
             </Typography>
-          </CardContent>
+            </div>
+            </CardContent>
+          
+          
         </CardActionArea>
-        <CardActions>
+        <CardActions  sx={{ display: 'flex', justifyContent: 'center' }}> {/* 中央揃え */}
+        
           <Button size="small" color="primary" onClick={onClick}>
             View Details
+          
           </Button>
         </CardActions>
       </StyledCard>
     </MainContainer>
-  );
+    );
 };
