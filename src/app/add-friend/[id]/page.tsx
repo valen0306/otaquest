@@ -98,7 +98,7 @@ const AddFriend = () => {
     <ThemeProvider theme={theme}>
       <Suspense fallback={<Loading />}>
         <div>
-          <Header name='フレンド追加' userID={my_id} />
+          <Header name='フレンド追加 var2' userID={my_id} />
           <h1>フレンド追加画面</h1>
           <p>以下のQRコードを読み取って、あなたのIDを共有してください。</p>
           <QRCode value={String(my_id)} />
