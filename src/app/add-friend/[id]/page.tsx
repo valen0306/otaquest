@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import { supabase } from '../../../supabase/supabaseClient'; // supabase クライアントをインポート
 import Header from '@/components/Header';
 import { ThemeProvider } from '@mui/material';
-import { theme } from '@/app/page'
+import { theme } from '@/components/theme'
 import Loading from '@/components/Loading';
 
 // `react-qr-scanner`を動的にインポート
