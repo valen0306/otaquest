@@ -6,9 +6,6 @@ import { supabase } from '../../../../../supabase/supabaseClient'; // 相対パ�
 
 interface Friend {
   id: number;
-
-
-  
   name: string;
   age: number;
   favorite_name: string;
@@ -26,8 +23,6 @@ const ViewFriendDetails = () => {
   const { friend_id } = useParams(); // URL パラメータから friend_id を取得
   const [friend, setFriend] = useState<Friend | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [iconUrl, setIconUrl] = useState<string | null>(null); // アイコン画像URLの状態
-  const [favoriteImageUrl, setFavoriteImageUrl] = useState<string | null>(null); // 推し画像URLの状態
 
   useEffect(() => {
     const fetchFriendDetails = async () => {
@@ -43,29 +38,13 @@ const ViewFriendDetails = () => {
         if (friendError) {
           throw new Error('Error fetching friend details: ' + friendError.message);
         }
-        
+
         if (friendData) {
-          setFriend(friendData);
+          // アイコン画像と推し画像のURLを生成
+          const icon_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/id_icon/${friend_id}_icon.jpg`;
+          const favorite_image_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/id_favorite/${friend_id}_favorite.jpg`;
 
-          // アイコン画像のURLを生成
-          const { data: iconData } = await supabase
-            .storage
-            .from('all_users')
-            .getPublicUrl(`${friend_id}_icon/${friend_id}_icon.jpg`);
-          
-          if (iconData) {
-            setIconUrl(iconData.publicUrl);
-          }
-
-          // 推し画像のURLを生成
-          const { data: favoriteImageData } = await supabase
-            .storage
-            .from('all_users')
-            .getPublicUrl(`${friend_id}_favorite/${friend_id}_favorite.jpg`);
-          
-          if (favoriteImageData) {
-            setFavoriteImageUrl(favoriteImageData.publicUrl);
-          }
+          setFriend({ ...friendData, icon_url, favorite_image_url });
         }
       } catch (err) {
         if (err instanceof Error) {
@@ -96,15 +75,15 @@ const ViewFriendDetails = () => {
           <p>X ID: {friend.x_id}</p>
           <p>Instagram ID: {friend.instagram_id}</p>
           
-          {iconUrl && (
+          {friend.icon_url && (
             <div>
-              <img src={iconUrl} alt={`${friend.name}のアイコン`} style={{ width: '100px', height: '100px' }} />
+              <img src={friend.icon_url} alt={`${friend.name}のアイコン`} style={{ width: '100px', height: '100px' }} />
             </div>
           )}
 
-          {favoriteImageUrl && (
+          {friend.favorite_image_url && (
             <div>
-              <img src={favoriteImageUrl} alt={`${friend.name}の推し画像`} style={{ width: '200px', height: '200px' }} />
+              <img src={friend.favorite_image_url} alt={`${friend.name}の推し画像`} style={{ width: '200px', height: '200px' }} />
             </div>
           )}
         </div>

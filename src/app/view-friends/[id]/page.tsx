@@ -1,52 +1,64 @@
 "use client"; // クライアントコンポーネントとしてマーク
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // useRouter をインポート
-import { supabase } from '../../../supabase/supabaseClient'; // 相対パスを修正
-import { CardComponent } from '../../../components/card_userlist'; // CardComponent をインポート
+import { useParams, useRouter } from 'next/navigation';
+import { supabase } from '../../../supabase/supabaseClient';
+import { CardComponent } from '../../../components/card_userlist';
+import Header from '@/components/Header';
+import { ThemeProvider } from '@mui/material';
+import { theme } from '@/app/page'
+import Loading from '@/components/Loading';
+
 
 interface Friend {
   id: number;
   name: string;
   favorite_name: string;
-  icon_url?: string; // アイコン画像のURLを追加
+  icon_url?: string;
 }
 
 const ViewFriends = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter(); // useRouter フックを使用
+  const router = useRouter();
+  const {id} = useParams();
+  const userId = Array.isArray(id)?id[0]:id;
 
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        // [1]_friends テーブルから全てのフレンド ID を取得
-        const { data: friendsData, error: friendsError } = await supabase
-          .from('1_friends')
-          .select('id');
+        // 現在のユーザーIDを取得（仮にidが1の場合とする）
+        const userId = 1; // 実際の実装では適切に取得する必要があります
 
-        if (friendsError) {
-          throw new Error('友達の取得中にエラーが発生しました: ' + friendsError.message);
+        // friends_arrayからフレンドのIDを取得
+        const { data: userData, error: userError } = await supabase
+          .from('all_users')
+          .select('friends_array')
+          .eq('id', userId)
+          .single();
+
+        if (userError) {
+          throw new Error('ユーザーデータの取得中にエラーが発生しました: ' + userError.message);
         }
 
-        // 取得した ID に基づいて all_users から name, favorite_name を取得
-        if (friendsData && friendsData.length > 0) {
+        const friendsIds = userData?.friends_array || [];
+
+        if (friendsIds.length > 0) {
           const friendsWithData = await Promise.all(
-            friendsData.map(async (friend: { id: number }) => {
-              const { data: userData, error: userError } = await supabase
+            friendsIds.map(async (friendId: number) => {
+              const { data: friendData, error: friendError } = await supabase
                 .from('all_users')
-                .select('id, name, favorite_name') // アイコンURLの取得はここでは行わない
-                .eq('id', friend.id)
+                .select('id, name, favorite_name')
+                .eq('id', friendId)
                 .single();
 
-              if (userError) {
-                throw new Error('ユーザーデータの取得中にエラーが発生しました: ' + userError.message);
+              if (friendError) {
+                throw new Error('フレンドデータの取得中にエラーが発生しました: ' + friendError.message);
               }
 
-              // アイコン画像のURLを生成
-              const icon_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/${friend.id}_icon/${friend.id}_icon.jpg`;
-
-              return { ...userData, icon_url };
+              const icon_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/id_icon/${friendId}_icon.jpg`;
+              console.log(icon_url)
+              return { ...friendData, icon_url };
             })
           );
 
@@ -67,13 +79,15 @@ const ViewFriends = () => {
   }, []);
 
   const handleViewDetails = (friendId: number) => {
-    // 詳細ページに遷移
     router.push(`/view-friends/[id]/details/${friendId}`);
   };
 
   return (
     <div>
       {error && <p>{error}</p>}
+      <ThemeProvider theme={theme}>
+      <Header name = 'フレンド一覧' userID={userId}/>
+      
       <h1>フレンド一覧ページ</h1>
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
         {friends.length > 0 ? (
@@ -82,7 +96,7 @@ const ViewFriends = () => {
               <CardComponent
                 title={friend.name}
                 description={friend.favorite_name}
-                image={friend.icon_url || 'デフォルトのイメージパス'} // デフォルトの画像パスを設定
+                image={friend.icon_url || 'デフォルトのイメージパス'}
                 onClick={() => handleViewDetails(friend.id)}
               />
             </div>
@@ -91,6 +105,9 @@ const ViewFriends = () => {
           <p>フレンドがいません。</p>
         )}
       </div>
+
+      </ThemeProvider>
+      
     </div>
   );
 };

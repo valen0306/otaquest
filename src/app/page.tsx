@@ -1,18 +1,21 @@
-'use client'; // クライアントコンポーネントとしてマーク
+'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation'; // 修正: 'next/navigation' を使用
 import { supabase } from '../supabase/supabaseClient';
 import Link from 'next/link';
-import { Button, createTheme, ThemeProvider } from '@mui/material';
+import { ThemeProvider, createTheme, Button, Typography } from '@mui/material';
+import Header from '@/components/Header';
 
-const theme = createTheme({
+export const theme = createTheme({
   palette: {
     primary: {
       light: '#757ce8',
-      main: '#3f50b5',
+      main: '#C3B8F9',
       dark: '#002884',
       contrastText: '#fff',
     },
+
     secondary: {
       light: '#ff7961',
       main: '#f44336',
@@ -22,7 +25,7 @@ const theme = createTheme({
   },
 });
 
-interface User {
+export interface User {
   id: number;
   name: string;
   age: number;
@@ -40,32 +43,36 @@ const Home = () => {
   const [userIconUrl, setUserIconUrl] = useState<string | null>(null);
   const [favoriteImageUrl, setFavoriteImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const userId = searchParams.get('id'); // クエリパラメータからIDを取得
 
   useEffect(() => {
     const fetchUser = async () => {
-      const userId = 1; // テストデータのIDを指定
+    console.log('idはこいつ:')
+    console.log(userId)
+      if (userId) {
+        const { data, error } = await supabase
+          .from('all_users')
+          .select(
+            `id, name, age, favorite_name, favorite_carrer, address, 
+            favorite_point, free_comment, x_id, instagram_id`
+          )
+          .eq('id', userId)
+          .single();
 
-      const { data, error } = await supabase
-        .from('all_users')
-        .select(
-          `id, name, age, favorite_name, favorite_carrer, address, 
-          favorite_point, free_comment, x_id, instagram_id`
-        )
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        setError('Error fetching user: ' + error.message);
-        console.error('Error fetching user:', error);
-      } else if (data) {
-        setUser(data);
-      } else {
-        setError('No user found with the given ID');
+        if (error) {
+          setError('Error fetching user: ' + error.message);
+          console.error('Error fetching user:', error);
+        } else if (data) {
+          setUser(data);
+        } else {
+          setError('No user found with the given ID');
+        }
       }
     };
 
     const fetchUserIcon = async () => {
-      const { data } = supabase
+      const { data } = await supabase
         .storage
         .from('avatars')  // 修正したストレージバケット名に合わせて変更
         .getPublicUrl('1_icon/1_icon.jpg'); // 実際のアイコン画像のファイル名に置き換え
@@ -76,7 +83,7 @@ const Home = () => {
     };
 
     const fetchFavoriteImage = async () => {
-      const { data } = supabase
+      const { data } = await supabase
         .storage
         .from('avatars')  // 修正したストレージバケット名に合わせて変更
         .getPublicUrl('1_favorite/1_favorite.jpg'); // 実際の推し画像のファイル名に置き換え
@@ -89,55 +96,92 @@ const Home = () => {
     fetchUser();
     fetchUserIcon();
     fetchFavoriteImage();
-  }, []);
+  }, [userId]);
+
+  const handleSignUp = () => {
+    window.location.href = '/sign_up'; // 修正: useRouter ではなく、直接 window.location.href を使用
+  };
+
+  const handleLogin = () => {
+    window.location.href = '/login'; // 修正: useRouter ではなく、直接 window.location.href を使用
+  };
 
   return (
     <ThemeProvider theme={theme}>
       {error && <p>{error}</p>}
-      {user ? (
-        <div>
-          {userIconUrl && <img src={userIconUrl} alt="ユーザアイコン" style={{ width: '100px', height: '100px' }} />}
-          <p>Name: {user.name}</p>
-          <p>Age: {user.age}</p>
-          <p>Favorite Name: {user.favorite_name}</p>
-          <p>Favorite Carrer: {user.favorite_carrer}</p>
-          <p>Address: {user.address}</p>
-          <p>Favorite Point: {user.favorite_point}</p>
-          <p>Free Comment: {user.free_comment}</p>
-          <p>X ID: {user.x_id}</p>
-          <p>Instagram ID: {user.instagram_id}</p>
-          {favoriteImageUrl && <img src={favoriteImageUrl} alt="推し画像" style={{ width: '200px', height: '200px' }} />}
+      <Header name = 'プロフィール' userID={user?.id}/>
+      {userId ? (
+        user ? (
+          <div>
+            {userIconUrl && <img src={userIconUrl} alt="ユーザアイコン" style={{ width: '100px', height: '100px' }} />}
+            <p>Name: {user.name}</p>
+            <p>Age: {user.age}</p>
+            <p>Favorite Name: {user.favorite_name}</p>
+            <p>Favorite Carrer: {user.favorite_carrer}</p>
+            <p>Address: {user.address}</p>
+            <p>Favorite Point: {user.favorite_point}</p>
+            <p>Free Comment: {user.free_comment}</p>
+            <p>X ID: {user.x_id}</p>
+            <p>Instagram ID: {user.instagram_id}</p>
+            {favoriteImageUrl && <img src={favoriteImageUrl} alt="推し画像" style={{ width: '200px', height: '200px' }} />}
 
-          {/* カード編集画面への遷移 */}
-          <Link href={`/edit/${user.id}`}>
-            <Button variant="contained" color="secondary" style={{ marginRight: '10px' }}>
-              カード編集画面へ
-            </Button>
-          </Link>
+            {/* カード編集画面への遷移 */}
+            <Link href={`/edit/${user.id}`}>
+              <Button variant="contained" color="secondary" >
+                カード編集画面へ
+              </Button>
+            </Link>
 
-          {/* フレンド追加画面への遷移 */}
-          <Link href={`/add-friend/${user.id}`}>
-            <Button variant="contained" color="secondary" style={{ marginRight: '10px' }}>
-              フレンド追加画面へ
-            </Button>
-          </Link>
+            {/* フレンド追加画面への遷移 */}
+            <Link href={`/add-friend/${user.id}`}>
+              <Button variant="contained" color="secondary" >
+                フレンド追加画面へ
+              </Button>
+            </Link>
 
-          {/* フレンド一覧画面への遷移 */}
-          <Link href={`/view-friends/${user.id}`}>
-            <Button variant="contained" color="secondary" style={{ marginRight: '10px' }}>
-              フレンド一覧画面へ
-            </Button>
-          </Link>
+            {/* フレンド一覧画面への遷移 */}
+            <Link href={`/view-friends/${user.id}`}>
+              <Button variant="contained" color="secondary" >
+                フレンド一覧画面へ
+              </Button>
+            </Link>
 
-          {/* サインアップ画面への遷移 */}
-          <Link href="/sign_up">
-            <Button variant="contained" color="primary">
-              サインアップ画面へ
-            </Button>
-          </Link>
-        </div>
+            {/* サインアップ画面への遷移 */}
+            <Link href="/sign_up">
+              <Button variant="contained" color="primary" style={{ marginRight: '10px' }}>
+                サインアップ画面へ
+              </Button>
+            </Link>
+
+            {/* ログイン画面への遷移 */}
+            <Link href="/login">
+              <Button variant="contained" color="primary">
+                ログイン画面へ
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <p>Loading...</p>
+        )
       ) : (
-        <p>Loading...</p>
+        <div>
+          <Typography variant="h4">ログインまたはサインアップしてください</Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSignUp}
+            style={{ marginRight: '10px' }}
+          >
+            サインアップ
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleLogin}
+          >
+            ログイン
+          </Button>
+        </div>
       )}
     </ThemeProvider>
   );
