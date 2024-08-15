@@ -6,7 +6,7 @@ import { supabase } from '../../../supabase/supabaseClient';
 import { CardComponent } from '../../../components/card_userlist';
 import Header from '@/components/Header';
 import { ThemeProvider } from '@mui/material';
-import { theme } from '@/app/page'
+import { theme } from '@/components/theme'
 import Loading from '@/components/Loading';
 
 
