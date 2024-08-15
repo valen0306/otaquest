@@ -32,7 +32,7 @@ function SquareA({
   category?: string;
   content?: string | React.ReactNode;
 }) {
-  const squareStyle = {
+  const squareStyle: React.CSSProperties = {
     width,
     height,
     backgroundColor,
@@ -41,7 +41,7 @@ function SquareA({
     alignItems: 'center',
     color: 'black',
     fontSize: '18px',
-    textAlign: 'center',
+    textAlign: 'center' as 'center',
     border: '1px solid black',
   };
 
@@ -54,6 +54,7 @@ function SquareA({
     </div>
   );
 }
+
 //正方形B関数を定義
 function SquareB({
   width = '200px',
@@ -75,7 +76,7 @@ function SquareB({
     alignItems: 'center',
     color: 'black',
     fontSize: '18px',
-    textAlign: 'center',
+    textAlign: 'center' as 'center',
     border: '1px solid black',
   };
 
