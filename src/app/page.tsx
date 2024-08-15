@@ -1,113 +1,171 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation'; // 修正: 'next/navigation' を使用
+import { supabase } from '../supabase/supabaseClient';
+import Link from 'next/link';
+import { ThemeProvider, createTheme, Button, Typography, Box } from '@mui/material';
+import Header from '@/components/Header';
+import image from '@/assets/image.png'
+import { Public } from '@mui/icons-material';
+import { User } from '@/components/user';
+import { theme } from '@/components/theme';
+
+
+
+const Home = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [userIconUrl, setUserIconUrl] = useState<string | null>(null);
+  const [favoriteImageUrl, setFavoriteImageUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const userId = searchParams.get('id'); // クエリパラメータからIDを取得
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      console.log('idはこいつ:')
+      console.log(userId)
+      if (userId) {
+        const { data, error } = await supabase
+          .from('all_users')
+          .select(
+            `id, name, age, favorite_name, favorite_carrer, address, 
+            favorite_point, free_comment, x_id, instagram_id`
+          )
+          .eq('id', userId)
+          .single();
+
+        if (error) {
+          setError('Error fetching user: ' + error.message);
+          console.error('Error fetching user:', error);
+        } else if (data) {
+          setUser(data);
+        } else {
+          setError('No user found with the given ID');
+        }
+      }
+    };
+
+    const fetchUserIcon = async () => {
+      const { data } = await supabase
+        .storage
+        .from('avatars')  // 修正したストレージバケット名に合わせて変更
+        .getPublicUrl('1_icon/1_icon.jpg'); // 実際のアイコン画像のファイル名に置き換え
+
+      if (data) {
+        setUserIconUrl(data.publicUrl);
+      }
+    };
+
+    const fetchFavoriteImage = async () => {
+      const { data } = await supabase
+        .storage
+        .from('avatars')  // 修正したストレージバケット名に合わせて変更
+        .getPublicUrl('1_favorite/1_favorite.jpg'); // 実際の推し画像のファイル名に置き換え
+
+      if (data) {
+        setFavoriteImageUrl(data.publicUrl);
+      }
+    };
+
+    fetchUser();
+    fetchUserIcon();
+    fetchFavoriteImage();
+  }, [userId]);
+
+  const handleSignUp = () => {
+    window.location.href = '/sign_up'; // 修正: useRouter ではなく、直接 window.location.href を使用
+  };
+
+  const handleLogin = () => {
+    window.location.href = '/login'; // 修正: useRouter ではなく、直接 window.location.href を使用
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <ThemeProvider theme={theme}>
+    <Suspense>  
+      {error && <p>{error}</p>}
+      
+      <h1 style={{fontSize : '35px', textAlign : 'center', marginTop : '60px', color: "#333132"}}>OtaQuest</h1>
+
+      <img src={"/assets/image.png"}  style={{ width: '250px' , textAlign : 'center', margin:  '0 auto', marginTop: '0px' }} />
+
+      {userId ? (
+        user ? (
+          <div>
+            {userIconUrl && <img src={userIconUrl} alt="ユーザアイコン" style={{ width: '100px', height: '100px' }} />}
+            <p>Name: {user.name}</p>
+            <p>Age: {user.age}</p>
+            <p>Favorite Name: {user.favorite_name}</p>
+            <p>Favorite Carrer: {user.favorite_carrer}</p>
+            <p>Address: {user.address}</p>
+            <p>Favorite Point: {user.favorite_point}</p>
+            <p>Free Comment: {user.free_comment}</p>
+            <p>X ID: {user.x_id}</p>
+            <p>Instagram ID: {user.instagram_id}</p>
+            {favoriteImageUrl && <img src={favoriteImageUrl} alt="推し画像" style={{ width: '200px', height: '200px' }} />}
+
+            {/* カード編集画面への遷移 */}
+            <Link href={`/edit/${user.id}`}>
+              <Button variant="contained" color="secondary" >
+                カード編集画面へ
+              </Button>
+            </Link>
+
+            {/* フレンド追加画面への遷移 */}
+            <Link href={`/add-friend/${user.id}`}>
+              <Button variant="contained" color="secondary" >
+                フレンド追加画面へ
+              </Button>
+            </Link>
+
+            {/* フレンド一覧画面への遷移 */}
+            <Link href={`/view-friends/${user.id}`}>
+              <Button variant="contained" color="secondary" >
+                フレンド一覧画面へ
+              </Button>
+            </Link>
+
+            {/* サインアップ画面への遷移 */}
+            <Link href="/sign_up">
+              <Button variant="contained" color="primary" style={{ marginRight: '10px' }}>
+                サインアップ画面へ
+              </Button>
+            </Link>
+
+            {/* ログイン画面への遷移 */}
+            <Link href="/login">
+              <Button variant="contained" color="primary">
+                ログイン画面へ
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <p>Loading...</p>
+        )
+      ) : (
+        
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
+          <Button
+            variant="contained"
+            onClick={handleSignUp}
+            style={{ marginRight: '10px', borderRadius: '15px', height: '60px', width: '300px' ,backgroundColor: "#ffd9da" , color: "#333132" }}
           >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+            CREATE　ACCOUNT
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={handleLogin}
+            style={{ marginRight: '10px', borderRadius: '15px', height: '60px', width: '300px', backgroundColor: "#ffd9da" , color: "#333132"}}
+          >
+            SIGN IN
+          </Button>
         </div>
-      </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      )}
+      </Suspense>
+    </ThemeProvider>
   );
-}
+};
+
+export default Home;
