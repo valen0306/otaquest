@@ -4,8 +4,10 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation'; // 修正: 'next/navigation' を使用
 import { supabase } from '../supabase/supabaseClient';
 import Link from 'next/link';
-import { ThemeProvider, createTheme, Button, Typography } from '@mui/material';
+import { ThemeProvider, createTheme, Button, Typography, Box } from '@mui/material';
 import Header from '@/components/Header';
+import image from '@/assets/image.png'
+import { Public } from '@mui/icons-material';
 import { User } from '@/components/user';
 import { theme } from '@/components/theme';
 
@@ -21,8 +23,8 @@ const Home = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-    console.log('idはこいつ:')
-    console.log(userId)
+      console.log('idはこいつ:')
+      console.log(userId)
       if (userId) {
         const { data, error } = await supabase
           .from('all_users')
@@ -83,7 +85,11 @@ const Home = () => {
     <ThemeProvider theme={theme}>
     <Suspense>  
       {error && <p>{error}</p>}
-      <Header name = 'プロフィール' userID={user?.id}/>
+      
+      <h1 style={{fontSize : '35px', textAlign : 'center', marginTop : '60px', color: "#333132"}}>OtaQuest</h1>
+
+      <img src={"/assets/image.png"}  style={{ width: '250px' , textAlign : 'center', margin:  '0 auto', marginTop: '0px' }} />
+
       {userId ? (
         user ? (
           <div>
@@ -138,22 +144,22 @@ const Home = () => {
           <p>Loading...</p>
         )
       ) : (
-        <div>
-          <Typography variant="h4">ログインまたはサインアップしてください</Typography>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
           <Button
             variant="contained"
-            color="primary"
             onClick={handleSignUp}
-            style={{ marginRight: '10px' }}
+            style={{ marginRight: '10px', borderRadius: '15px', height: '60px', width: '300px' ,backgroundColor: "#ffd9da" , color: "#333132" }}
           >
-            サインアップ
+            CREATE　ACCOUNT
           </Button>
+
           <Button
             variant="contained"
-            color="secondary"
             onClick={handleLogin}
+            style={{ marginRight: '10px', borderRadius: '15px', height: '60px', width: '300px', backgroundColor: "#ffd9da" , color: "#333132"}}
           >
-            ログイン
+            SIGN IN
           </Button>
         </div>
       )}
