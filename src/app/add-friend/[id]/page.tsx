@@ -21,92 +21,62 @@ const AddFriend = () => {
 
   const [scannedData, setScannedData] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
-  const [canBeFriendFlag, setCanBeFriendFlag] = useState(0); // フレンド追加可能フラグ
 
   const handleScan = async (data: string | null) => {
     if (data) {
       const preFriendId = data;
-
-      // QRコードデータの検証
-      if (!/^\d+$/.test(preFriendId)) {
-        alert('無効なQRコードデータです');
-        return;
-      }
-
       setScannedData(preFriendId);
       setIsCameraActive(false); // カメラを停止
 
-      // pre-friend_id と my_id が一致しない場合、フラグを立てる
-      if (preFriendId !== my_id) {
-        setCanBeFriendFlag(1);
-      } else {
-        alert('自分自身を追加することはできません');
-        return;
-      }
-
       try {
-        if (canBeFriendFlag === 1) {
-          // お互いのfriends_arrayに相手のidを追加
-          const { data: user1Data, error: user1Error } = await supabase
-            .from('all_users')
-            .select('friends_array')
-            .eq('id', my_id)
-            .single();
+        // お互いのfriends_arrayに相手のidを追加
+        const { data: user1Data, error: user1Error } = await supabase
+          .from('all_users')
+          .select('friends_array')
+          .eq('id', my_id)
+          .single();
 
-          if (user1Error) {
-            throw new Error(`ユーザー1のフレンドリスト取得エラー: ${user1Error.message}`);
-          }
+        const { data: user2Data, error: user2Error } = await supabase
+          .from('all_users')
+          .select('friends_array')
+          .eq('id', preFriendId)
+          .single();
 
-          const { data: user2Data, error: user2Error } = await supabase
-            .from('all_users')
-            .select('friends_array')
-            .eq('id', preFriendId)
-            .single();
-
-          if (user2Error) {
-            throw new Error(`ユーザー2のフレンドリスト取得エラー: ${user2Error.message}`);
-          }
-
-          const updatedUser1Friends = [...(user1Data?.friends_array || []), parseInt(preFriendId, 10)];
-          const updatedUser2Friends = [...(user2Data?.friends_array || []), parseInt(my_id, 10)];
-
-          // ユーザ1のfriends_arrayを更新
-          const { error: updateUser1Error } = await supabase
-            .from('all_users')
-            .update({ friends_array: updatedUser1Friends })
-            .eq('id', my_id);
-
-          if (updateUser1Error) {
-            throw new Error(`ユーザー1のフレンドリスト更新エラー: ${updateUser1Error.message}`);
-          }
-
-          // ユーザ2のfriends_arrayを更新
-          const { error: updateUser2Error } = await supabase
-            .from('all_users')
-            .update({ friends_array: updatedUser2Friends })
-            .eq('id', preFriendId);
-
-          if (updateUser2Error) {
-            throw new Error(`ユーザー2のフレンドリスト更新エラー: ${updateUser2Error.message}`);
-          }
-
-          alert('フレンドリストが更新されました！');
-        } else {
-          alert('有効なQRコードではありません');
-          router.push('/app/page.tsx'); // /app/page.tsxに遷移
+        if (user1Error || user2Error) {
+          throw new Error('フレンドリストの取得中にエラーが発生しました');
         }
+
+        const updatedUser1Friends = [...user1Data.friends_array, parseInt(preFriendId, 10)];
+        const updatedUser2Friends = [...user2Data.friends_array, parseInt(my_id, 10)];
+
+        // ユーザ1のfriends_arrayを更新
+        const { error: updateUser1Error } = await supabase
+          .from('all_users')
+          .update({ friends_array: updatedUser1Friends })
+          .eq('id', my_id);
+
+        // ユーザ2のfriends_arrayを更新
+        const { error: updateUser2Error } = await supabase
+          .from('all_users')
+          .update({ friends_array: updatedUser2Friends })
+          .eq('id', preFriendId);
+
+        if (updateUser1Error || updateUser2Error) {
+          throw new Error('フレンドリストの更新中にエラーが発生しました');
+        }
+
+        alert('フレンドリストが更新されました！');
+        router.push('/app/page.tsx'); // 登録後にトップページへ遷移
+
       } catch (error) {
-        console.error('フレンドリストの更新エラー:', error);
-        alert('フレンドリストの更新に失敗しました。詳細はコンソールを確認してください。');
+        console.error(error);
+        alert('フレンドリストの更新に失敗しました');
       }
-    } else {
-      alert('QRコードのスキャンに失敗しました。');
     }
   };
 
   const handleError = (err: any) => {
-    console.error('QRコードスキャンエラー:', err);
-    alert('QRコードスキャン中にエラーが発生しました。');
+    console.error(err);
   };
 
   const handleCameraToggle = () => {
