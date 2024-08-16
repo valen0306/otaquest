@@ -49,8 +49,8 @@ const Home = () => {
     const fetchUserIcon = async () => {
       const { data } = await supabase
         .storage
-        .from('avatars')  // 修正したストレージバケット名に合わせて変更
-        .getPublicUrl('1_icon/1_icon.jpg'); // 実際のアイコン画像のファイル名に置き換え
+        .from('all_users')  // 修正したストレージバケット名に合わせて変更
+        .getPublicUrl(`public/id_icon/${userId}_icon.jpg`); // 実際のアイコン画像のファイル名に置き換え
 
       if (data) {
         setUserIconUrl(data.publicUrl);
@@ -60,8 +60,8 @@ const Home = () => {
     const fetchFavoriteImage = async () => {
       const { data } = await supabase
         .storage
-        .from('avatars')  // 修正したストレージバケット名に合わせて変更
-        .getPublicUrl('1_favorite/1_favorite.jpg'); // 実際の推し画像のファイル名に置き換え
+        .from('all_users')  // 修正したストレージバケット名に合わせて変更
+        .getPublicUrl(`public/id_favorite/${userId}_favorite.jpg`); // 実際の推し画像のファイル名に置き換え
 
       if (data) {
         setFavoriteImageUrl(data.publicUrl);

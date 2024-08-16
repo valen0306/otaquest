@@ -1,28 +1,27 @@
 "use client"; // クライアントコンポーネントとしてマーク
-
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-
+import { supabase } from '@/supabase/supabaseClient';
 // インターフェースを定義
 interface Friend {
-  ID: number;
-  Name: string; // Nameフィールドを追加
-  Age: number;
-  Favorite_name: string;
-  Favorite_carrier: number;
-  Address: string;
-  Favorite_point: string;
-  Free_space: string;
-  X_ID: string;
-  Instagram_ID: string;
-  PhotoURL: string; //PhotoURLを追加
+  id: number;
+  name: string;
+  age: number;
+  favorite_name: string;
+  favorite_carrer: number;
+  address: string;
+  favorite_point: string;
+  free_comment: string;
+  x_id: string;
+  instagram_id: string;
+  icon_url?: string; // アイコン画像のURLを追加
+  favorite_image_url?: string; // 推し画像のURLを追加
 }
-
-// 正方形A関数を定義 (Function Component)
+// 四角形関数Aの定義
 function SquareA({
   width = '200px',
   height = '200px',
-  backgroundColor = 'white',
+  backgroundColor = '#F7FCFE', // デフォルトの背景色をF7FCFEに設定
   category = '',
   content = '',
 }: {
@@ -32,116 +31,171 @@ function SquareA({
   category?: string;
   content?: string | React.ReactNode;
 }) {
-  const squareStyle: React.CSSProperties = {
+  const squareStyle:React.CSSProperties = {
     width,
     height,
     backgroundColor,
     display: 'flex',
+    flexDirection: 'column', // 縦方向に並べる
     justifyContent: 'center',
     alignItems: 'center',
     color: 'black',
     fontSize: '18px',
-    textAlign: 'center' as 'center',
     border: '1px solid black',
+    borderRadius: '10px',
   };
-
+  const categoryStyle = {
+    width: '100%',
+    textAlign: 'left' as const, // categoryを左揃え
+    padding: '5px',
+  };
+  const contentStyle = {
+    width: '100%',
+    textAlign: 'center' as const, // contentを中央揃え
+    padding: '5px',
+  };
   return (
     <div style={squareStyle}>
-      <div>
-        {category}<br />
+      <div style={categoryStyle}>
+        {category}
+      </div>
+      <div style={contentStyle}>
         {content}
       </div>
     </div>
   );
 }
-
-//正方形B関数を定義
+// 四角形B関数を定義 (Function Component)
 function SquareB({
   width = '200px',
   height = '200px',
-  backgroundColor = 'white',
+  backgroundColor = 'F7FCFE', // デフォルトの背景色をF7FCFEに設定
   category = '',
+  content = '',
+  category1 = '',
+  content1 = '',
 }: {
   width?: string;
   height?: string;
   backgroundColor?: string;
   category?: string;
+  content?: string | React.ReactNode;
+  category1?: string;
+  content1?: string | React.ReactNode;
 }) {
-  const squareStyle = {
+  const squareStyle :React.CSSProperties= {
     width,
     height,
     backgroundColor,
     display: 'flex',
+    flexDirection: 'column', // 縦方向に要素を並べる
     justifyContent: 'center',
     alignItems: 'center',
     color: 'black',
     fontSize: '18px',
-    textAlign: 'center' as 'center',
     border: '1px solid black',
+    borderRadius: '10px',
+    padding: '10px',
   };
-
+  const categoryStyle = {
+    width: '100%',
+    textAlign: 'left' as const, // categoryとcategory1を左揃え
+    padding: '5px 0',
+  };
+  const contentStyle = {
+    width: '100%',
+    textAlign: 'center' as const, // contentとcontent1を中央揃え
+    padding: '5px 0',
+  };
   return (
     <div style={squareStyle}>
-      <div>
+      <div style={categoryStyle}>
         {category}
       </div>
+      <div style={contentStyle}>
+        {content}
+      </div>
+      <div style={categoryStyle}>
+        {category1}
+      </div>
+      <div style={contentStyle}>
+        {content1}
+      </div>
     </div>
-  )
+  );
 }
-// データを直書きする
-const friendData: Friend[] = [
-    { ID: 1, Name: 'Alice Johnson', Age: 25, Favorite_name: 'Alice', Favorite_carrier: 1, Address: '123 Street', Favorite_point: '10', Free_space: '50', X_ID: 'X1', Instagram_ID: '@alice', PhotoURL: 'https://example.com/photo-alice.jpg' },
-    { ID: 2, Name: 'Bob Smith', Age: 30, Favorite_name: 'Bob', Favorite_carrier: 2, Address: '456 Avenue', Favorite_point: '20', Free_space: '60', X_ID: 'X2', Instagram_ID: '@bob', PhotoURL: 'https://example.com/photo-bob.jpg' },
-    { ID: 3, Name: 'Charlie Brown', Age: 35, Favorite_name: 'Charlie', Favorite_carrier: 3, Address: '789 Boulevard', Favorite_point: '30', Free_space: '70', X_ID: 'X3', Instagram_ID: '@charlie', PhotoURL: 'https://example.com/photo-charlie.jpg' },
-    { ID: 4, Name: 'Dave Wilson', Age: 28, Favorite_name: 'Dave', Favorite_carrier: 4, Address: '101 Highway', Favorite_point: '40', Free_space: '80', X_ID: 'X4', Instagram_ID: '@dave', PhotoURL: 'https://example.com/photo-dave.jpg' },
-    { ID: 5, Name: 'Eve Adams', Age: 22, Favorite_name: 'Eve', Favorite_carrier: 5, Address: '202 Lane', Favorite_point: '50', Free_space: '90', X_ID: 'X5', Instagram_ID: '@eve', PhotoURL: 'https://example.com/photo-eve.jpg' },
-  ];
-
-const Exist = (): JSX.Element => {
-  const { id } = useParams(); // useParams を使って URL パラメータを取得
+// プロフィール表示コンポーネント
+const Exist = () => {
+  const { friend_id } = useParams(); // URL パラメータから friend_id を取得
   const [friend, setFriend] = useState<Friend | null>(null); // 初期状態は null に設定
-
-  useEffect(() => { // データをフィルタリングする処理
-    if (typeof id === 'string') {
-      const userId = parseInt(id);
-      const filteredFriend = friendData.find((friend) => friend.ID === userId) || null;
-      setFriend(filteredFriend);
-    }
-  }, [id]);
-
-  console.log(id)
-
-  // friend が null の場合、データが見つからなかったことを表示
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchFriendDetails = async () => {
+      try {
+        const { data: friendData, error: friendError } = await supabase
+          .from('all_users') // 正しいテーブル名に変更
+          .select(
+            'id, name, age, favorite_name, favorite_carrer, address, favorite_point, free_comment, x_id, instagram_id'
+          )
+          .eq('id', friend_id) // 指定した friend_id のフレンド情報を取得
+          .single(); // 単一の結果を期待
+        if (friendError) {
+          throw new Error('Error fetching friend details: ' + friendError.message);
+        }
+        if (friendData) {
+          const icon_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/public/id_icon/${friend_id}_icon.jpg`;
+          const favorite_image_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/public/id_favorite/${friend_id}_favorite.jpg`;
+          setFriend({ ...friendData, icon_url, favorite_image_url });
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('An unknown error occurred');
+        }
+      }
+    };
+    fetchFriendDetails();
+  }, [friend_id]);
+  if (error) {
+    return <div>{error}</div>;
+  }
   if (!friend) {
     return <div>データが見つかりませんでした。</div>;
   }
-
-  //画面の表示（長さ、幅、中に入っている文字はそのまま編集可能）
   return (
     <div>
-      <h1>Friend List</h1>
+      <h1>{friend.name}さんのプロフィール</h1>
       <ul>
-        <li key={friend.ID}>
-          <SquareB width= '500px' height='50px' category={'プロフィール'} />
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <SquareA width='245px' height='100px' category={'ID'} content={friend.ID} />
-            <SquareA width='245px' height='100px' category={'名前'} content={friend.Name} />
+        <li key={friend.id}>
+          <div style={{ border: 'solid', display: 'inline-flex', flexDirection: 'column', justifyContent: 'center', padding: '20px' }}>
+            <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                {friend.icon_url && (
+                  <SquareA width="245px" height="245px" category="アイコン" content={<img src={friend.icon_url} alt={`${friend.name}のアイコン`} style={{ width: '100%', height: '100%' }} />} />
+                )}
+                {friend.favorite_image_url && (
+                  <SquareA width="245px" height="245px" category="推しの画像" content={<img src={friend.favorite_image_url} alt={`${friend.name}の推し画像`} style={{ width: '100%', height: '100%' }} />} />
+                )}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                <SquareA width="245px" height="100px" category="名前" content={friend.name} />
+                <SquareA width="245px" height="100px" category="推しの名前" content={friend.favorite_name} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                <SquareA width="245px" height="100px" category="年齢" content={friend.age} />
+                <SquareA width="245px" height="100px" category="住所" content={friend.address} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                <SquareA width="500px" height="100px" category="推しのいいところ" content={friend.favorite_point} />
+              </div>
+              <SquareA width="500px" height="100px" category="フリースペース" content={friend.free_comment} />
+              <SquareB width="500px" height="150px" category="X" content={friend.x_id} category1="Instagram" content1={friend.instagram_id} />
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <SquareA width='245px' height='100px' category={'年齢'} content={friend.Age} />
-            <SquareA width='245px' height='100px' category={'推しの名前'} content={friend.Favorite_name} />
-          </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <SquareA width='245px' height='100px' category={'住所'} content={friend.Address} />
-            <SquareA width='245px' height='100px' category={'推しのいいところ'} content={friend.Favorite_point} />
-          </div>
-          <SquareA width='500px' height='100px' category={'フリースペース'} content={friend.Free_space} />
-          <SquareA width='500px' height='100px' category={'X'} content={friend.X_ID} />
-          <SquareA width='500px' height='100px' category={'Instagram'} content={friend.Instagram_ID} />
         </li>
       </ul>
     </div>
   );
 };
-
 export default Exist;

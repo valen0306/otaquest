@@ -56,7 +56,7 @@ const ViewFriends = () => {
                 );
               }
 
-              const icon_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/id_icon/${friendId}_icon.jpg`;
+              const icon_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/piblic/id_icon/${friendId}_icon.jpg`;
               console.log(icon_url);
               return { ...friendData, icon_url };
             })

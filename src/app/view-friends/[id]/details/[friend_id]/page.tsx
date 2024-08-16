@@ -1,9 +1,8 @@
 "use client"; // クライアントコンポーネントとしてマーク
-
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation'; // useParams をインポート
 import { supabase } from '../../../../../supabase/supabaseClient'; // 相対パスを修正
-
+import Exist from '@/components/profile.sheets'
 interface Friend {
   id: number;
   name: string;
@@ -18,12 +17,10 @@ interface Friend {
   icon_url?: string; // アイコン画像のURLを追加
   favorite_image_url?: string; // 推し画像のURLを追加
 }
-
 const ViewFriendDetails = () => {
   const { friend_id } = useParams(); // URL パラメータから friend_id を取得
   const [friend, setFriend] = useState<Friend | null>(null);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchFriendDetails = async () => {
       try {
@@ -34,16 +31,13 @@ const ViewFriendDetails = () => {
           )
           .eq('id', friend_id) // 指定した friend_id のフレンド情報を取得
           .single(); // 単一の結果を期待
-
         if (friendError) {
           throw new Error('Error fetching friend details: ' + friendError.message);
         }
-
         if (friendData) {
           // アイコン画像と推し画像のURLを生成
-          const icon_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/id_icon/${friend_id}_icon.jpg`;
-          const favorite_image_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/id_favorite/${friend_id}_favorite.jpg`;
-
+          const icon_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/public/id_icon/${friend_id}_icon.jpg`;
+          const favorite_image_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/all_users/public/id_favorite/${friend_id}_favorite.jpg`;
           setFriend({ ...friendData, icon_url, favorite_image_url });
         }
       } catch (err) {
@@ -54,38 +48,15 @@ const ViewFriendDetails = () => {
         }
       }
     };
-
     fetchFriendDetails();
   }, [friend_id]);
-
   return (
     <div>
       {error && <p>{error}</p>}
       {friend ? (
         <div>
-          <h1>{friend.name}さんのプロフィール</h1>
-          <p>ID: {friend.id}</p>
-          <p>Name: {friend.name}</p>
-          <p>Age: {friend.age}</p>
-          <p>Favorite Name: {friend.favorite_name}</p>
-          <p>Favorite Career: {friend.favorite_carrer}</p>
-          <p>Address: {friend.address}</p>
-          <p>Favorite Point: {friend.favorite_point}</p>
-          <p>Free Comment: {friend.free_comment}</p>
-          <p>X ID: {friend.x_id}</p>
-          <p>Instagram ID: {friend.instagram_id}</p>
-          
-          {friend.icon_url && (
-            <div>
-              <img src={friend.icon_url} alt={`${friend.name}のアイコン`} style={{ width: '100px', height: '100px' }} />
-            </div>
-          )}
-
-          {friend.favorite_image_url && (
-            <div>
-              <img src={friend.favorite_image_url} alt={`${friend.name}の推し画像`} style={{ width: '200px', height: '200px' }} />
-            </div>
-          )}
+          <Exist/ >
+       
         </div>
       ) : (
         <p>プロフィール情報が見つかりませんでした。</p>
@@ -93,5 +64,4 @@ const ViewFriendDetails = () => {
     </div>
   );
 };
-
 export default ViewFriendDetails;
