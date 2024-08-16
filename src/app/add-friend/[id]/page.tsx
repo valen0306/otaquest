@@ -12,11 +12,11 @@ const AddFriend = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <div>
+      <div className='add_friend_background'>
         <Header name='フレンド追加' userID={my_id} />
-        <h1>フレンド追加画面</h1>
-        <p>以下のQRコードを読み取って、あなたのIDを共有してください。</p>
-        <QRCode value={`${process.env.NEXT_PUBLIC_BASE_URL}/follow/${my_id}`} /> {/* フォローページのURLをQRコードに変換して表示 */}
+        <div className='flex justify-center items-center h-screen'>
+          <QRCode className='max-w-full max-h-full' size={256} value={`${process.env.NEXT_PUBLIC_BASE_URL}/follow/${my_id}`} /> {/* フォローページのURLをQRコードに変換して表示 */}
+        </div>
       </div>
     </ThemeProvider>
   );

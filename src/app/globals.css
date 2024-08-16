@@ -32,3 +32,8 @@ body {
     text-wrap: balance;
   }
 }
+
+.add_friend_background {
+  background-image: url(../../public/assets/kyoto.jpg);
+  height: 100vh;
+}
