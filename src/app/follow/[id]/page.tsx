@@ -102,10 +102,9 @@ const FollowPage = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <div>
+      <div className='home_background'>
         <Header name="フォロー" userID={friend_id} />
-        <h1>フォローページ</h1>
-        <form onSubmit={(e) => {
+        <form className='mt-28 ml-10' onSubmit={(e) => {
           e.preventDefault();
           handleLoginAndFollow();
         }}>
