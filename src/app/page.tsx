@@ -83,51 +83,57 @@ const Home = () => {
 
   return (
     <ThemeProvider theme={theme}>
-    <Suspense>  
-      {error && <p>{error}</p>}
-      
-      {userId ? (
-        user ? (
-          <div>
-            <Header userID={userId} name={user.name}/>
-            {userIconUrl && <img src={userIconUrl} alt="ユーザアイコン" style={{ width: '100px', height: '100px' }} />}
-            <p>Name: {user.name}</p>
-            <p>Age: {user.age}</p>
-            <p>Favorite Name: {user.favorite_name}</p>
-            <p>Favorite Carrer: {user.favorite_carrer}</p>
-            <p>Address: {user.address}</p>
-            <p>Favorite Point: {user.favorite_point}</p>
-            <p>Free Comment: {user.free_comment}</p>
-            <p>X ID: {user.x_id}</p>
-            <p>Instagram ID: {user.instagram_id}</p>
-            {favoriteImageUrl && <img src={favoriteImageUrl} alt="推し画像" style={{ width: '200px', height: '200px' }} />}
-          </div>
-        ) : (
-          <p>Loading...</p>
-        )
-      ) : (
-        
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
-          <Button
-            variant="contained"
-            onClick={handleSignUp}
-            style={{ marginRight: '10px', borderRadius: '15px', height: '60px', width: '300px' ,backgroundColor: "#ffd9da" , color: "#333132" }}
-          >
-            CREATE　ACCOUNT
-          </Button>
+      <Suspense>  
+        {error && <p>{error}</p>}      
 
-          <Button
-            variant="contained"
-            onClick={handleLogin}
-            style={{ marginRight: '10px', borderRadius: '15px', height: '60px', width: '300px', backgroundColor: "#ffd9da" , color: "#333132"}}
-          >
-            SIGN IN
-          </Button>
-        </div>
-      )}
+
+        {userId ? (
+          user ? (
+            <div>
+              <Header userID={userId} name={user.name}/>
+              {userIconUrl && <img src={userIconUrl} alt="ユーザアイコン" style={{ width: '100px', height: '100px' }} />}
+              <p>Name: {user.name}</p>
+              <p>Age: {user.age}</p>
+              <p>Favorite Name: {user.favorite_name}</p>
+              <p>Favorite Carrer: {user.favorite_carrer}</p>
+              <p>Address: {user.address}</p>
+              <p>Favorite Point: {user.favorite_point}</p>
+              <p>Free Comment: {user.free_comment}</p>
+              <p>X ID: {user.x_id}</p>
+              <p>Instagram ID: {user.instagram_id}</p>
+              {favoriteImageUrl && <img src={favoriteImageUrl} alt="推し画像" style={{ width: '200px', height: '200px' }} />}
+            </div>
+          ) : (
+            <p>Loading...</p>
+          )
+        ) : (
+          <div>
+            <div>
+              <h1 style={{ fontSize: '35px', textAlign: 'center', marginTop: '60px', color: "#333132" }}>OtaQuest</h1>
+              <img src={"/assets/image.png"} style={{ width: '250px', textAlign: 'center', margin: '0 auto', marginTop: '0px' }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
+              <Button
+                variant="contained"
+                onClick={handleSignUp}
+                style={{ marginRight: '10px', borderRadius: '15px', height: '60px', width: '300px' ,backgroundColor: "#ffd9da" , color: "#333132" }}
+              >
+                CREATE　ACCOUNT
+              </Button>
+
+              <Button
+                variant="contained"
+                onClick={handleLogin}
+                style={{ marginRight: '10px', borderRadius: '15px', height: '60px', width: '300px', backgroundColor: "#ffd9da" , color: "#333132"}}
+              >
+                SIGN IN
+              </Button>
+            </div>
+          </div>
+        )}
       </Suspense>
     </ThemeProvider>
-  );
+  )
 };
 
 export default Home;
