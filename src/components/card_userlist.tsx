@@ -54,8 +54,7 @@ export const CardComponent: React.FC<CardComponentProps> = ({ title, description
         <CardActions  sx={{ display: 'flex', justifyContent: 'center' }}> {/* 中央揃え */}
         
           <Button size="small" color="primary" onClick={onClick}>
-            View Details
-          
+            <p style={{ color: "black" }}>View Details</p>
           </Button>
         </CardActions>
       </StyledCard>

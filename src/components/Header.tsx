@@ -23,7 +23,7 @@ const Header = (props: HeaderProps) => {
                 >
                   <MenuIcon />
                 </IconButton>
-                {isMenuOpen && props.userID && (<div className='fixed bg-white  shadow-lg p-4 grid gap-3'>
+                {isMenuOpen && props.userID && (<div className='fixed z-10 bg-white  shadow-lg p-4 grid gap-3'>
                 <Link className="text-black" href={`/`}>プロフィール</Link>
                   <Link className="text-black" href={`/edit/${props.userID}`}>編集</Link>
                   <Link className="text-black" href={`/add-friend/${props.userID}`}>フレンド追加</Link>

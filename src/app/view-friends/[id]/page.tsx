@@ -94,10 +94,10 @@ const ViewFriends = () => {
 
       
     
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center'}}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'stretch', marginTop: '20px' }}>
         {friends.length > 0 ? (
           friends.map((friend) => (
-            <div key={friend.id} style={{ margin: '15px', width: '350px' }}>
+            <div key={friend.id} style={{ margin: '5px', width: '350px' }}>
               <CardComponent
                 title={friend.name}
                 description={friend.favorite_name}
@@ -111,11 +111,10 @@ const ViewFriends = () => {
         )}
       </div>
 
-        <h1>フレンド一覧ページ</h1>
         <div style={{ display: "flex", flexWrap: "wrap" }}>
           {friends.length > 0 ? (
             friends.map((friend) => (
-              <div key={friend.id} style={{ margin: "20px", width: "300px" }}>
+              <div key={friend.id} style={{ margin: "5px", width: "350px" }}>
                 <CardComponent
                   title={friend.name}
                   description={friend.favorite_name}

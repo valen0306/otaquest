@@ -86,13 +86,10 @@ const Home = () => {
     <Suspense>  
       {error && <p>{error}</p>}
       
-      <h1 style={{fontSize : '35px', textAlign : 'center', marginTop : '60px', color: "#333132"}}>OtaQuest</h1>
-
-      <img src={"/assets/image.png"}  style={{ width: '250px' , textAlign : 'center', margin:  '0 auto', marginTop: '0px' }} />
-
       {userId ? (
         user ? (
           <div>
+            <Header userID={userId} name={user.name}/>
             {userIconUrl && <img src={userIconUrl} alt="ユーザアイコン" style={{ width: '100px', height: '100px' }} />}
             <p>Name: {user.name}</p>
             <p>Age: {user.age}</p>
@@ -104,41 +101,6 @@ const Home = () => {
             <p>X ID: {user.x_id}</p>
             <p>Instagram ID: {user.instagram_id}</p>
             {favoriteImageUrl && <img src={favoriteImageUrl} alt="推し画像" style={{ width: '200px', height: '200px' }} />}
-
-            {/* カード編集画面への遷移 */}
-            <Link href={`/edit/${user.id}`}>
-              <Button variant="contained" color="secondary" >
-                カード編集画面へ
-              </Button>
-            </Link>
-
-            {/* フレンド追加画面への遷移 */}
-            <Link href={`/add-friend/${user.id}`}>
-              <Button variant="contained" color="secondary" >
-                フレンド追加画面へ
-              </Button>
-            </Link>
-
-            {/* フレンド一覧画面への遷移 */}
-            <Link href={`/view-friends/${user.id}`}>
-              <Button variant="contained" color="secondary" >
-                フレンド一覧画面へ
-              </Button>
-            </Link>
-
-            {/* サインアップ画面への遷移 */}
-            <Link href="/sign_up">
-              <Button variant="contained" color="primary" style={{ marginRight: '10px' }}>
-                サインアップ画面へ
-              </Button>
-            </Link>
-
-            {/* ログイン画面への遷移 */}
-            <Link href="/login">
-              <Button variant="contained" color="primary">
-                ログイン画面へ
-              </Button>
-            </Link>
           </div>
         ) : (
           <p>Loading...</p>
