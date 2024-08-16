@@ -89,19 +89,21 @@ const Home = () => {
 
         {userId ? (
           user ? (
-            <div>
+            <div className='home_background'>
               <Header userID={userId} name={user.name}/>
-              {userIconUrl && <img src={userIconUrl} alt="ユーザアイコン" style={{ width: '100px', height: '100px' }} />}
-              <p>Name: {user.name}</p>
-              <p>Age: {user.age}</p>
-              <p>Favorite Name: {user.favorite_name}</p>
-              <p>Favorite Carrer: {user.favorite_carrer}</p>
-              <p>Address: {user.address}</p>
-              <p>Favorite Point: {user.favorite_point}</p>
-              <p>Free Comment: {user.free_comment}</p>
-              <p>X ID: {user.x_id}</p>
-              <p>Instagram ID: {user.instagram_id}</p>
-              {favoriteImageUrl && <img src={favoriteImageUrl} alt="推し画像" style={{ width: '200px', height: '200px' }} />}
+              <div className='px-20 text-lg'>
+                {userIconUrl && <img src={userIconUrl} alt="ユーザアイコン" style={{ width: '100px', height: '100px' }} />}
+                <p>Name: {user.name}</p><br />
+                <p>Age: {user.age}</p>
+                <p>Favorite Name: {user.favorite_name}</p>
+                <p>Favorite Carrer: {user.favorite_carrer}</p>
+                <p>Address: {user.address}</p>
+                <p>Favorite Point: {user.favorite_point}</p>
+                <p>Free Comment: {user.free_comment}</p><br/>
+                <p>X ID: {user.x_id}</p>
+                <p>Instagram ID: {user.instagram_id}</p>
+                {favoriteImageUrl && <img src={favoriteImageUrl} alt="推し画像" style={{ width: '200px', height: '200px' }} />}
+              </div>
             </div>
           ) : (
             <p>Loading...</p>

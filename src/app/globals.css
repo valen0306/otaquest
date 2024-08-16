@@ -37,3 +37,8 @@ body {
   background-image: url(../../public/assets/kyoto.jpg);
   height: 100vh;
 }
+
+.home_background {
+  background-image: url(../../public/assets/pink.webp);
+  height: 100vh;
+}
