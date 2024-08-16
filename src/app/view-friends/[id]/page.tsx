@@ -26,10 +26,6 @@ const ViewFriends = () => {
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        // 現在のユーザーIDを取得（仮にidが1の場合とする）
-        const userId = 1; // 実際の実装では適切に取得する必要があります
-
-        // friends_arrayからフレンドのIDを取得
         const { data: userData, error: userError } = await supabase
           .from("all_users")
           .select("friends_array")
@@ -90,28 +86,15 @@ const ViewFriends = () => {
     <div>
       {error && <p>{error}</p>}
       <ThemeProvider theme={theme}>
-      <Header name = 'フレンド一覧' userID={userId}/>
-
-      
-    
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'stretch', marginTop: '20px' }}>
-        {friends.length > 0 ? (
-          friends.map((friend) => (
-            <div key={friend.id} style={{ margin: '5px', width: '350px' }}>
-              <CardComponent
-                title={friend.name}
-                description={friend.favorite_name}
-                image={friend.icon_url || 'デフォルトのイメージパス'}
-                onClick={() => handleViewDetails(friend.id)}
-              />
-            </div>
-          ))
-        ) : (
-          <p>フレンドがいません。</p>
-        )}
-      </div>
-
-        <div style={{ display: "flex", flexWrap: "wrap" }}>
+        <Header name="フレンド一覧" userID={userId} />
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "stretch",
+            marginTop: "20px",
+          }}
+        >
           {friends.length > 0 ? (
             friends.map((friend) => (
               <div key={friend.id} style={{ margin: "5px", width: "350px" }}>
